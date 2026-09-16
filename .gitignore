@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+*.py[cod]
+.DS_Store
+
+# Keep source Excel/CSV and uploaded archives out of public repositories.
+input/*
+!input/.gitkeep
+
+# Local logs and editor files.
+*.log
+.vscode/

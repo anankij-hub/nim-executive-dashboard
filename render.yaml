@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: nim-executive-dashboard
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python server.py
+    envVars:
+      - key: HOST
+        value: 0.0.0.0
+      - key: READ_ONLY_DEPLOY
+        value: "1"

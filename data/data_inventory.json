@@ -1,0 +1,130 @@
+[
+  {
+    "file": "PQ68-update-รวม.xlsx",
+    "size_bytes": 90599938,
+    "sheets": [
+      {
+        "sheet": "รวม",
+        "rows": 228450,
+        "columns": [
+          "Column_1",
+          "Column_2",
+          "Column_3",
+          "Column_4",
+          "Column_5",
+          "Column_6",
+          "Column_7"
+        ]
+      },
+      {
+        "sheet": "เลขที่ใบรายการ-ทะเบียนรถ",
+        "rows": 24325,
+        "columns": [
+          "เลขที่ใบรายการ",
+          "ทะเบียนรถ",
+          "Master_car.ชนิดรถ"
+        ]
+      },
+      {
+        "sheet": "ภาพรวม ปี 68",
+        "rows": 15,
+        "columns": [
+          "Column_1",
+          "Column_2",
+          "Column_3",
+          "Column_4",
+          "Column_5",
+          "Column_6",
+          "Column_7"
+        ]
+      },
+      {
+        "sheet": "ชนิดรถ-รายได้",
+        "rows": 22,
+        "columns": [
+          "Column_1",
+          "Column_2",
+          "Column_3"
+        ]
+      },
+      {
+        "sheet": "ชนิดรถ-ต้นทุนค่าเดินทาง",
+        "rows": 17,
+        "columns": [
+          "Column_1",
+          "Column_2",
+          "Column_3"
+        ]
+      },
+      {
+        "sheet": "ชนิดรถ-ค่าซ่อมตามงวด",
+        "rows": 17,
+        "columns": [
+          "Column_1",
+          "Column_2",
+          "Column_3"
+        ]
+      },
+      {
+        "sheet": "ชนิดรถ-ค่าน้ำมัน",
+        "rows": 13,
+        "columns": [
+          "Column_1",
+          "Column_2",
+          "Column_3"
+        ]
+      },
+      {
+        "sheet": "ชนิดรถ-ค่าเช่ารถ",
+        "rows": 20,
+        "columns": [
+          "Column_1",
+          "Column_2",
+          "Column_3"
+        ]
+      },
+      {
+        "sheet": "กลุ่มบริการ (ของย่อย)",
+        "rows": 111,
+        "columns": [
+          "Column_1",
+          "ต้นทาง",
+          "All",
+          "Column_4",
+          "Column_5"
+        ]
+      },
+      {
+        "sheet": "จุดขึ้น-ลง",
+        "rows": 403,
+        "columns": [
+          "Column_1",
+          "ประเภทสินค้า ค่าเช่า",
+          "(Multiple Items)",
+          "Column_4",
+          "Column_5",
+          "Column_6"
+        ]
+      }
+    ]
+  },
+  {
+    "file": "ข้อมูลลูกค้ารายคน.csv",
+    "size_bytes": 7364,
+    "sheets": [
+      {
+        "sheet": "CSV",
+        "rows": 50,
+        "columns": [
+          "Customer_Code",
+          "Allocated_Profit",
+          "Allocated_Profit_Margin_%",
+          "Sum of ราคารวม",
+          "Total_Allocated_Cost",
+          "Customer_Strategy_Segment"
+        ],
+        "encoding": "utf-8-sig"
+      }
+    ]
+  }
+]
