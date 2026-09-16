@@ -610,7 +610,9 @@ def build_year_data(year, path):
         raise RuntimeError("ต้องติดตั้ง openpyxl ใน .venv: python -m pip install openpyxl") from e
     wb=load_workbook(path, read_only=True, data_only=True, keep_links=False)
     try:
-        if "CM" in wb.sheetnames or any(f"ไตรมาสที่{i}" in wb.sheetnames for i in range(1, 5)):
+        normalized_sheets = {"".join(str(name).split()) for name in wb.sheetnames}
+        has_2568_full_year = bool(normalized_sheets & {"รวมทั้งปี68", "รวมทั้งปี2568"})
+        if "CM" in wb.sheetnames or has_2568_full_year or any(f"ไตรมาสที่{i}" in wb.sheetnames for i in range(1, 5)):
             from cm_data import parse_cm
             result = parse_cm(wb, year, str(path.relative_to(INPUT_DIR)))
             supplemental = sorted((p for p in INPUT_DIR.rglob("*.xlsx") if p != path and category_for(p) == "prepared" and extract_year(p.stem) == year), key=lambda p: p.stat().st_mtime, reverse=True)

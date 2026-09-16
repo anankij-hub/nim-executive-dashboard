@@ -19,8 +19,12 @@ def finite(value):
 
 
 def parse_cm(wb, year, source):
+    normalized_sheets = {''.join(str(name).split()): name for name in wb.sheetnames}
+    full_year_2568 = next((normalized_sheets[key] for key in ('รวมทั้งปี68', 'รวมทั้งปี2568') if key in normalized_sheets), None)
     quarter_sheets = [f"ไตรมาสที่{i}" for i in range(1, 5)]
-    if any(name in wb.sheetnames for name in quarter_sheets):
+    if year == 2568 and full_year_2568:
+        sheet_names = [full_year_2568]
+    elif any(name in wb.sheetnames for name in quarter_sheets):
         missing_sheets = [name for name in quarter_sheets if name not in wb.sheetnames]
         if missing_sheets:
             raise ValueError(f"ข้อมูลไตรมาสไม่ครบ: {', '.join(missing_sheets)}")
