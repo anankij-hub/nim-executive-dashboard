@@ -1008,23 +1008,11 @@ function fleetUtilizationPage(y, operationsOnly = false) {
 }
 
 function customerCreditPage() {
-  return `<div class="customer-tabs"><button class="customer-tab active" type="button">Profitability</button><button class="customer-tab" type="button" disabled>Credit Risk · Awaiting A/R Dataset</button></div>${customerPage()}<div class="panel credit-unavailable"><div class="panel-title">Credit Risk: Awaiting A/R Dataset</div><p>ยังไม่มีข้อมูลลูกหนี้/การรับชำระ จึงยังไม่แสดง Outstanding A/R, Overdue Amount, DSO หรือ Days Overdue</p><small>ต้องมี Customer Code, Invoice Date, Due Date, Payment Date, Invoice Amount และ Paid Amount</small></div>`;
+  return `<div class="customer-tabs"><button class="customer-tab active" type="button">Profitability</button></div>${customerPage()}`;
 }
 
-function managementActionPage(y) {
-  const trips = selectedTripSummary();
-  const customer = state.data?.customer_summary || {};
-  const lossCustomers = customer.totals?.loss_making_count || 0;
-  const lowLoad = Number(trips.totals?.below_70_records || 0);
-  const belowBreakEven = Number(trips.totals?.below_break_even_records || 0);
-  const wastedCost = Number.isFinite(Number(trips.totals?.wasted_cost_total)) ? Number(trips.totals.wasted_cost_total) : null;
-  const issues = [
-    lowLoad > 0 && {title:'เที่ยวที่ Load Factor ต่ำกว่า 70%', value:fmt(lowLoad,0), detail:'เที่ยวที่ผ่าน validation · ควรทบทวนการจัดบรรทุก', status:'High', page:'fleet_util', link:'ดู Fleet Page', color:'coral'},
-    belowBreakEven > 0 && {title:'เที่ยวต่ำกว่าจุดคุ้มทุน', value:fmt(belowBreakEven,0), detail:'เที่ยวที่มีเกณฑ์ BE และต่ำกว่าเกณฑ์', status:'High', page:'trip_route', link:'ดู Route Page', color:'coral'},
-    lossCustomers > 0 && {title:'ลูกค้าที่ Contribution ติดลบ', value:fmt(lossCustomers,0), detail:'ลูกค้าจากข้อมูล Customer Profitability', status:'Review', page:'customer_credit', link:'ดู Customer Page', color:'amber'},
-    wastedCost !== null && wastedCost > 0 && {title:'ต้นทุนสูญเปล่าจาก Load Factor', value:customerMoney(wastedCost), detail:'โอกาสทางปฏิบัติการ · ไม่รวมใน CM Scenario', status:'Review', page:'fleet_util', link:'ดู Fleet Page', color:'amber'}
-  ].filter(Boolean).slice(0,4);
-  return `<div class="scenario-executive rp-dashboard"><div class="merged-page-intro"><div><div class="eyebrow">DECISION CENTER</div><h2>Management Action &amp; Scenario</h2><p>สรุปประเด็นสำคัญที่ควรดำเนินการ และจำลองผลกระทบทางการเงินจากการปรับรายได้และต้นทุน</p></div></div><section class="scenario-actions"><div class="scenario-section-head"><div><h2>Management Actions</h2><p>ประเด็นสำคัญที่ควรดำเนินการ · แสดงเฉพาะข้อมูลที่มีอยู่จริง</p></div></div><div class="scenario-action-grid">${issues.length ? issues.map(issue => `<article class="scenario-action-card ${issue.color}"><div class="scenario-action-top"><span class="scenario-action-icon">${issue.status==='High'?'!':'◈'}</span><span class="scenario-badge">${issue.status}</span></div><h3>${issue.title}</h3><strong>${issue.value}</strong><p>${issue.detail}</p><button type="button" data-page="${issue.page}">${issue.link} →</button></article>`).join('') : '<div class="scenario-empty">ยังไม่มีประเด็นที่มีข้อมูลเพียงพอสำหรับสรุป</div>'}</div></section>${cmScenarioPage(y)}</div>`;
+function managementActionPage() {
+  return `<div class="scenario-executive rp-dashboard"><div class="merged-page-intro"><div><div class="eyebrow">DECISION CENTER</div><h2>Management Action &amp; Scenario</h2><p>เครื่องมือจำลองสถานการณ์ที่ผู้บริหารกำหนดสมมติฐานเอง</p></div></div>${scenarioSimulatorSection()}</div>`;
 }
 
 const categoryLabel = {
@@ -1055,9 +1043,9 @@ function cmPage(y) {
   const notice = cmNotice(y);
   const trips = selectedTripSummary();
   const loadSummary = trips.ok ? panel('Load Factor · ข้อมูลเที่ยวปี ' + y.year, esc(trips.source), `<div class="kpi-grid">${kpi('Load Factor เฉลี่ย', tripPct(trips.totals?.avg_load_factor), 'เฉพาะเที่ยวที่ผ่าน validation')}${kpi('เที่ยวที่มี Load Factor ใช้ได้', fmt(trips.data_quality?.validated_candidate_trip_loads, 0))}</div>`) : '';
-  if (state.page === 'action_scenario') return notice + cmScenarioPage(y);
   const kpis = `<div class="kpi-grid">${kpi('รายได้', customerMoney(t.revenue), 'รวมรายได้', '฿')}${kpi('ต้นทุนผันแปร', customerMoney(t.variable_cost), 'จากชีท CM', '▣')}${kpi('Contribution Margin', customerMoney(t.contribution), 'ส่วนต่างหลังต้นทุนผันแปร', '▲')}${kpi('CM %', customerPct(t.margin_pct), 'CM ÷ รายได้ × 100', '%')}</div>`;
   if (state.page === 'overview') return notice + kpis + panel('รายได้และต้นทุนผันแปรรายเดือน', 'เฉพาะช่วงที่มีข้อมูล', lineChart(y.overview.monthly)) + panel('สรุปรายเดือน', 'หน่วยล้านบาท', cmTable(y.overview.monthly, 'month', 'เดือน')) + loadSummary;
+
   const fleet = state.page === 'fleet_util';
   const rows = fleet ? y.vehicles : y.routes;
   const key = fleet ? 'vehicle' : 'route';
@@ -1066,59 +1054,147 @@ function cmPage(y) {
   return notice + kpis + panel(fleet ? 'ผลตอบแทนตามชนิดรถ' : 'ผลตอบแทนตามเส้นทาง', 'เรียงมากไปน้อย · หน่วยล้านบาท · จำนวนรายการตามเลขที่ใบรายการที่ไม่ซ้ำ', `<div class="route-filters"><input id="cmSearch" placeholder="ค้นหา" value="${esc(filter.search)}"><select id="cmSort">${[['contribution','Contribution Margin'],['revenue','รายได้'],['variable_cost','ต้นทุนผันแปร'],['margin_pct','CM %']].map(([v,l]) => `<option value="${v}" ${filter.sort===v?'selected':''}>${l}</option>`).join('')}</select></div>${cmTable(visible,key,fleet?'ชนิดรถ':'เส้นทาง')}`) + (trips.ok ? (fleet ? fleetUtilizationPage(y, true) : loadSummary + panel('Load Factor ตามเส้นทาง', esc(trips.source), tripAggregateTable(trips.routes, 'route', 'เส้นทาง'))) : panel('ข้อมูลการบรรทุก', 'ยังไม่มีข้อมูลเที่ยวที่ผ่านการตรวจสอบของปีที่เลือก', '<p>Load Factor / Cost per Ton / Empty Trip: N/A</p>'));
 }
 
-function cmScenarioPage(y) {
-  const p = y.profit_summary;
-  if (!p || !Number.isFinite(Number(p.revenue)) || !Number.isFinite(Number(p.cost)) || !Number.isFinite(Number(p.profit))) return '<section class="scenario-panel"><div class="scenario-empty">ข้อมูล CM ของปีที่เลือกยังไม่เพียงพอสำหรับ Scenario</div></section>';
-  const saved = state.simpleScenarios?.[y.year] || JSON.parse(localStorage.getItem(`nimSimpleScenario:${y.year}`) || 'null') || {revenueGrowth:0,costReduction:0};
-  const control = (key,label,min,max) => `<div class="simple-control"><div class="simple-control-head"><label for="${key}Range">${label}</label><div><input id="${key}Number" data-cm-scenario="${key}" type="number" min="${min}" max="${max}" step="1" value="${saved[key] ?? 0}"><span>%</span></div></div><input id="${key}Range" data-cm-scenario="${key}" type="range" min="${min}" max="${max}" step="1" value="${saved[key] ?? 0}"><div class="simple-control-scale"><span>${min}%</span><span>${max}%</span></div></div>`;
-  return `<section class="scenario-panel scenario-model"><div class="scenario-section-head"><div><h2>Simple What-if Scenario</h2><p>ถ้ารายได้เปลี่ยน และเราลดต้นทุนผันแปรได้ ผลตอบแทนจะเปลี่ยนไปเท่าไร?</p></div><span class="scenario-source">CM ${y.year} · ${esc(y.source || 'CM Dataset')}</span></div><div class="scenario-main-grid"><div class="scenario-controls">${control('revenueGrowth','รายได้เปลี่ยนแปลง',-20,30)}${control('costReduction','ลดต้นทุนผันแปร',0,20)}<div class="scenario-presets"><span>Scenario assumptions</span><button type="button" data-cm-preset="base">Base Case</button><button type="button" data-cm-preset="optimistic">Optimistic</button><button type="button" data-cm-preset="stress">Stress Case</button></div></div><div id="cmScenarioResults" class="scenario-result-panel"></div></div><div id="scenarioComparison" class="scenario-comparison"></div><div class="scenario-chart-wrap"><h3>Current vs Scenario <small>เปรียบเทียบผลลัพธ์</small></h3><div id="scenarioChart"></div></div><details class="scenario-advanced"><summary>Advanced Assumptions</summary><p>Scenario นี้ใช้ Revenue และ Variable Cost จาก CM Dataset โดยตรง และไม่รวม Wasted Cost จาก Load Factor เพื่อหลีกเลี่ยงการนับต้นทุนซ้ำ</p></details></section><section class="scenario-opportunity"><div><span class="scenario-opportunity-label">Operational Opportunity · โอกาสทางปฏิบัติการ</span><h3>ต้นทุนสูญเปล่าจาก Load Factor</h3></div><strong>${wastedCostValue(selectedTripSummary())}</strong><small>แสดงแยกจาก CM Scenario · ไม่ได้นำไปรวมใน Contribution Margin</small></section>`;
+const simMethods = {
+  trip: {label:'ต้นทุนต่อเที่ยว', short:'Cost / Trip', unit:'บาท/เที่ยว', rateKey:'rateTrip'},
+  km: {label:'ต้นทุนต่อกิโลเมตร', short:'Cost / KM', unit:'บาท/กม.', rateKey:'rateKm'},
+  tonkm: {label:'ต้นทุนต่อตัน-กิโลเมตร', short:'Cost / Ton-KM', unit:'บาท/ตัน-กม.', rateKey:'rateTonKm'}
+};
+
+function simulatorDefaults() {
+  return {distance:700, payload:9, trips:15, method:'trip', rateTrip:12500, rateKm:'', rateTonKm:'', lfEnabled:false, loadFactor:65, targetMargin:20, moreTripsPct:20, improveLoadFactorTarget:75};
 }
 
-function wastedCostValue(trips) {
-  const value = Number(trips?.totals?.wasted_cost_total);
-  return Number.isFinite(value) && value > 0 ? customerMoney(value) : 'N/A';
+function simulatorState() {
+  if (!state.simulator) {
+    let saved = null;
+    try { saved = JSON.parse(localStorage.getItem('nimSimulator') || 'null'); } catch { saved = null; }
+    state.simulator = {...simulatorDefaults(), ...(saved || {})};
+  }
+  return state.simulator;
 }
 
-function calculateSimpleScenario(y, s) {
-  const revenue = Number(y.profit_summary?.revenue), variableCost = Number(y.profit_summary?.cost), contribution = Number(y.profit_summary?.profit);
-  if (![revenue,variableCost,contribution,s.revenueGrowth,s.costReduction].every(Number.isFinite) || revenue < 0 || variableCost < 0) return {error:'ข้อมูล CM ของปีที่เลือกไม่พร้อม'};
-  if (s.revenueGrowth === 0 && s.costReduction === 0) return {revenue,variableCost,contribution,cmRatio:revenue ? contribution/revenue*100 : null,projectedRevenue:revenue,projectedCost:variableCost,projectedContribution:contribution,projectedRatio:revenue ? contribution/revenue*100 : null,improvement:0};
-  const projectedRevenue = revenue * (1 + s.revenueGrowth / 100);
-  const baselineRatio = revenue ? variableCost / revenue : null;
-  const projectedCostBeforeEfficiency = baselineRatio === null ? null : projectedRevenue * baselineRatio;
-  const projectedCost = projectedCostBeforeEfficiency === null ? null : projectedCostBeforeEfficiency * (1 - s.costReduction / 100);
-  const projectedContribution = projectedRevenue - projectedCost;
-  const projectedRatio = projectedRevenue ? projectedContribution / projectedRevenue * 100 : null;
-  return {revenue,variableCost,contribution,cmRatio:revenue ? contribution/revenue*100 : null,projectedRevenue,projectedCost,projectedContribution,projectedRatio,improvement:projectedContribution-contribution};
+function bahtExact(value) { return Number.isFinite(value) ? `฿ ${fmt(value,0)}` : 'N/A'; }
+
+// Core simulator math: user-entered assumptions only, no company dataset involved.
+function calculateSimulator(s) {
+  const errors = {};
+  const distance = Number(s.distance), payload = Number(s.payload), trips = Number(s.trips);
+  const method = simMethods[s.method] ? s.method : 'trip';
+  const rateKey = simMethods[method].rateKey;
+  const rate = Number(s[rateKey]);
+  const targetMargin = Number(s.targetMargin);
+  if (!Number.isFinite(distance) || distance < 0) errors.distance = 'ระยะทางต้องเป็นตัวเลขตั้งแต่ 0 ขึ้นไป';
+  if (!Number.isFinite(payload) || payload < 0) errors.payload = 'น้ำหนักบรรทุกต้องเป็นตัวเลขตั้งแต่ 0 ขึ้นไป';
+  if (!Number.isFinite(trips) || trips <= 0) errors.trips = 'จำนวนเที่ยวต้องมากกว่า 0';
+  if (!Number.isFinite(rate) || rate < 0) errors[rateKey] = `กรุณาระบุ${simMethods[method].label}ให้ถูกต้อง`;
+  if (method === 'km' && Number.isFinite(distance) && distance <= 0) errors.distance = 'วิธีนี้ต้องระบุระยะทางมากกว่า 0';
+  if (method === 'tonkm') {
+    if (Number.isFinite(distance) && distance <= 0) errors.distance = 'วิธีนี้ต้องระบุระยะทางมากกว่า 0';
+    if (Number.isFinite(payload) && payload <= 0) errors.payload = 'วิธีนี้ต้องระบุน้ำหนักบรรทุกมากกว่า 0';
+  }
+  let loadFactor = null;
+  if (s.lfEnabled) {
+    loadFactor = Number(s.loadFactor);
+    if (!Number.isFinite(loadFactor) || loadFactor <= 0 || loadFactor > 100) errors.loadFactor = 'Load Factor ต้องมากกว่า 0% และไม่เกิน 100%';
+  }
+  if (!Number.isFinite(targetMargin) || targetMargin < 0 || targetMargin >= 100) errors.targetMargin = 'Target Margin ต้องอยู่ระหว่าง 0% ถึงต่ำกว่า 100%';
+  if (Object.keys(errors).length) return {ok:false, errors};
+
+  const baseCost = method === 'trip' ? rate*trips : method === 'km' ? distance*rate*trips : distance*payload*rate*trips;
+  const predictedCost = s.lfEnabled ? baseCost/(loadFactor/100) : baseCost;
+  const requiredRevenue = predictedCost/(1-targetMargin/100);
+  const expectedContribution = requiredRevenue-predictedCost;
+  const expectedMargin = requiredRevenue ? expectedContribution/requiredRevenue*100 : null;
+  const costPerTrip = trips > 0 ? predictedCost/trips : null;
+  const status = !Number.isFinite(expectedMargin) ? 'invalid' : expectedMargin >= targetMargin ? 'healthy' : 'watch';
+  return {ok:true, method, distance, payload, trips, rate, loadFactorEnabled:!!s.lfEnabled, loadFactor, targetMargin, baseCost, predictedCost, requiredRevenue, expectedContribution, expectedMargin, costPerTrip, status};
 }
 
-function calculateCostScenario(y, s) {
-  const keys = ['revenue','target','depreciation','repairShare','travelShare','fuelShare','repairReduction','travelReduction','fuelReduction'];
-  if (!keys.every(k => Number.isFinite(s[k]) && s[k] >= 0)) return {error: 'กรุณากรอกตัวเลขทุกช่องให้ครบ และไม่น้อยกว่า 0'};
-  if (keys.filter(k => k.endsWith('Share') || k.endsWith('Reduction')).some(k => s[k] > 100)) return {error: 'สัดส่วนและการลดต้นทุนต้องอยู่ระหว่าง 0–100%'};
-  if (Math.abs(s.repairShare+s.travelShare+s.fuelShare-100) > .000001) return {error: 'สัดส่วนค่าซ่อม + ค่าเดินทาง + ค่าน้ำมัน ต้องรวมเท่ากับ 100%'};
-  const revenue = s.revenue*1e6, baseRevenue = y.profit_summary.revenue, baseCost = y.profit_summary.cost;
-  if (!(baseRevenue > 0) || !Number.isFinite(baseCost)) return {error:'ข้อมูลต้นทุนฐานไม่พร้อม'};
-  const categories = ['repair','travel','fuel'].map(key => { const base = baseCost*s[key+'Share']/100; return {key, base, projected: base*revenue/baseRevenue*(1-s[key+'Reduction']/100)}; });
-  const cost = categories.reduce((sum,r) => sum+r.projected,0), cm = revenue-cost, depreciation = s.depreciation*1e6;
-  return {revenue,cost,cm,depreciation,result:cm-depreciation,categories,margin:revenue ? cm/revenue*100 : null,required:null};
+function simStatusMeta(status) {
+  if (status === 'healthy') return {label:'น่าพอใจ', color:'green', icon:'✓'};
+  if (status === 'watch') return {label:'เฝ้าระวัง', color:'amber', icon:'!'};
+  return {label:'ข้อมูลไม่ครบ', color:'coral', icon:'✕'};
 }
 
-function updateCMScenario() {
-  const y = current(), output = $('cmScenarioResults');
-  if (!output) return;
-  const values = Object.fromEntries([...document.querySelectorAll('[data-cm-scenario]')].map(el => [el.dataset.cmScenario, Number(el.value)]));
-  const s = {revenueGrowth:Number.isFinite(values.revenueGrowth) ? Math.max(-20,Math.min(30,values.revenueGrowth)) : 0,costReduction:Number.isFinite(values.costReduction) ? Math.max(0,Math.min(20,values.costReduction)) : 0};
-  state.simpleScenarios ||= {}; state.simpleScenarios[y.year] = s; localStorage.setItem(`nimSimpleScenario:${y.year}`,JSON.stringify(s));
-  document.querySelectorAll('[data-cm-scenario]').forEach(el => { el.value = s[el.dataset.cmScenario]; });
-  const result = calculateSimpleScenario(y,s);
-  if (result.error) { output.innerHTML = `<p>${esc(result.error)}</p>`; return; }
-  const changeLabel = result.improvement >= 0 ? 'CM เพิ่มขึ้น' : 'CM ลดลง';
-  output.innerHTML = `<div class="scenario-result-heading"><span>Projected Result</span><strong class="${result.improvement >= 0 ? 'good' : 'loss'}">${changeLabel}<br>${result.improvement >= 0 ? '+' : ''}${moneyM(result.improvement)}</strong></div><p class="scenario-sentence">หากรายได้${s.revenueGrowth >= 0 ? 'เพิ่ม' : 'ลด'} ${Math.abs(s.revenueGrowth)}% และลดต้นทุนผันแปรได้ ${s.costReduction}%<br>Contribution Margin จะ${result.improvement >= 0 ? 'เพิ่มขึ้น' : 'ลดลง'}ประมาณ ${moneyM(Math.abs(result.improvement))}</p>`;
-  $('scenarioComparison').innerHTML = `<table class="simple-table"><thead><tr><th>Metric</th><th>Current</th><th>Scenario</th></tr></thead><tbody><tr><td>Revenue</td><td>${moneyM(result.revenue)}</td><td>${moneyM(result.projectedRevenue)}</td></tr><tr><td>Variable Cost</td><td>${moneyM(result.variableCost)}</td><td>${moneyM(result.projectedCost)}</td></tr><tr><td>Contribution Margin</td><td>${moneyM(result.contribution)}</td><td>${moneyM(result.projectedContribution)}</td></tr><tr><td>CM Ratio</td><td>${customerPct(result.cmRatio)}</td><td>${customerPct(result.projectedRatio)}</td></tr></tbody></table>`;
-  const valuesForChart = [['Revenue',result.revenue,result.projectedRevenue],['Variable Cost',result.variableCost,result.projectedCost],['Contribution Margin',result.contribution,result.projectedContribution]];
-  const max = Math.max(1,...valuesForChart.flatMap(row => row.slice(1).map(value => Math.abs(value))));
-  $('scenarioChart').innerHTML = `<div class="scenario-chart-legend"><span><i class="current"></i>Current</span><span><i class="projected"></i>Scenario</span></div><div class="scenario-bars">${valuesForChart.map(([label,currentValue,scenarioValue]) => `<div class="scenario-bar-group"><div class="scenario-bar-pair"><i class="current" style="height:${Math.max(2,Math.abs(currentValue)/max*100)}%"><b>${moneyM(currentValue)}</b></i><i class="projected" style="height:${Math.max(2,Math.abs(scenarioValue)/max*100)}%"><b>${moneyM(scenarioValue)}</b></i></div><span>${label}</span></div>`).join('')}</div>`;
+function simKpiCards(r) {
+  if (!r.ok) return `<div class="rp-kpis sim-kpis"><div class="scenario-empty" style="grid-column:1/-1">กรอกข้อมูลให้ครบและถูกต้องเพื่อดูผลลัพธ์</div></div>`;
+  const meta = simStatusMeta(r.status);
+  return `<div class="rp-kpis sim-kpis">${rpCard('ต้นทุนคาดการณ์รวม',bahtExact(r.predictedCost),'Predicted Cost','฿','blue')}${rpCard('รายได้ขั้นต่ำที่ควรได้',bahtExact(r.requiredRevenue),'Required Revenue','▲','green')}${rpCard('Contribution',bahtExact(r.expectedContribution),'กำไร/ผลตอบแทนคาดการณ์','+','green')}${rpCard('Margin คาดการณ์',customerPct(r.expectedMargin),`เป้าหมาย ${fmt(r.targetMargin,0)}%`,'%','purple')}${rpCard('ต้นทุนต่อเที่ยว',bahtExact(r.costPerTrip),'Predicted Cost ÷ จำนวนเที่ยว','▣','amber')}${rpCard('สถานะ',meta.label,'ตามเกณฑ์ Margin ที่ตั้งไว้',meta.icon,meta.color)}</div>`;
+}
+
+function simInputGroup(s) {
+  const err = s._errors || {};
+  const field = (key,label,unit,step,min) => `<label class="sim-field ${err[key]?'has-error':''}"><span>${label}</span><div class="sim-field-input"><input data-sim="${key}" type="number" min="${min}" step="${step}" value="${esc(s[key])}">${unit?`<em>${unit}</em>`:''}</div>${err[key]?`<small class="sim-error">${esc(err[key])}</small>`:''}</label>`;
+  return `<div class="sim-group"><h3>ข้อมูลการเดินรถ</h3><div class="sim-group-grid">${field('distance','ระยะทาง','กม.','any',0)}${field('payload','น้ำหนักบรรทุก','ตัน','any',0)}${field('trips','จำนวนเที่ยว','เที่ยว','1',1)}</div></div>`;
+}
+
+function simMethodCards(s) {
+  const err = s._errors || {};
+  return `<div class="sim-group"><h3>เลือกวิธีคำนวณต้นทุน</h3><div class="sim-method-grid">${Object.entries(simMethods).map(([key,meta]) => `<label class="sim-method-card ${s.method===key?'active':''}"><input type="radio" name="simMethod" data-sim="method" value="${key}" ${s.method===key?'checked':''}><div><b>${meta.label}</b><small>${meta.short}</small></div>${s.method===key?`<div class="sim-method-rate ${err[meta.rateKey]?'has-error':''}"><span>${meta.unit}</span><input data-sim="${meta.rateKey}" type="number" min="0" step="any" value="${esc(s[meta.rateKey])}">${err[meta.rateKey]?`<small class="sim-error">${esc(err[meta.rateKey])}</small>`:''}</div>`:''}</label>`).join('')}</div><label class="sim-lf-toggle"><input type="checkbox" data-sim="lfEnabled" ${s.lfEnabled?'checked':''}><span>Method 4 — ปรับด้วย Load Factor (ไม่บังคับ)</span></label>${s.lfEnabled?`<div class="sim-field ${err.loadFactor?'has-error':''}" style="max-width:220px"><span>Load Factor สมมติฐาน</span><div class="sim-field-input"><input data-sim="loadFactor" type="number" min="0" max="100" step="any" value="${esc(s.loadFactor)}"><em>%</em></div>${err.loadFactor?`<small class="sim-error">${esc(err.loadFactor)}</small>`:''}</div>`:''}</div>`;
+}
+
+function simTargetGroup(s) {
+  const err = s._errors || {};
+  return `<div class="sim-group"><h3>เป้าหมายทางการเงิน</h3><label class="sim-field ${err.targetMargin?'has-error':''}" style="max-width:220px"><span>Target Margin</span><div class="sim-field-input"><input data-sim="targetMargin" type="number" min="0" max="99" step="any" value="${esc(s.targetMargin)}"><em>%</em></div>${err.targetMargin?`<small class="sim-error">${esc(err.targetMargin)}</small>`:''}</label></div>`;
+}
+
+function simComparisonScenarios(s, base) {
+  if (!base.ok) return [];
+  const scenarios = [{key:'base', label:'Base Case (ปัจจุบัน)', input:s}];
+  const moreTripsPct = Number(s.moreTripsPct);
+  if (Number.isFinite(moreTripsPct)) {
+    const trips = Math.max(1, Math.round(Number(s.trips) * (1 + moreTripsPct/100)));
+    scenarios.push({key:'moreTrips', label:`เพิ่มจำนวนเที่ยว (+${fmt(moreTripsPct,0)}%)`, input:{...s, trips}});
+  }
+  const improveTarget = Number(s.improveLoadFactorTarget);
+  if (Number.isFinite(improveTarget)) {
+    scenarios.push({key:'improveLf', label:`ปรับปรุง Load Factor (${fmt(improveTarget,0)}%)`, input:{...s, lfEnabled:true, loadFactor:improveTarget}});
+  }
+  return scenarios.map(sc => ({...sc, result:calculateSimulator(sc.input)}));
+}
+
+function simComparisonTable(scenarios) {
+  const rows = scenarios.filter(sc => sc.result.ok);
+  if (!rows.length) return '<p class="rp-empty">ยังไม่มีสถานการณ์ที่คำนวณได้ กรุณาตรวจสอบข้อมูล Base Case</p>';
+  return `<div class="rp-table-scroll"><table class="simple-table"><thead><tr><th>สถานการณ์ (Simulation)</th><th>รายได้ขั้นต่ำ</th><th>ต้นทุนคาดการณ์</th><th>Contribution</th><th>Margin</th></tr></thead><tbody>${rows.map(sc => `<tr><td>${esc(sc.label)}</td><td>${bahtExact(sc.result.requiredRevenue)}</td><td>${bahtExact(sc.result.predictedCost)}</td><td>${bahtExact(sc.result.expectedContribution)}</td><td>${customerPct(sc.result.expectedMargin)}</td></tr>`).join('')}</tbody></table></div>`;
+}
+
+function simComparisonChart(scenarios) {
+  const rows = scenarios.filter(sc => sc.result.ok);
+  if (!rows.length) return '<p class="rp-empty">ไม่มีข้อมูลสำหรับเปรียบเทียบ</p>';
+  const max = Math.max(1, ...rows.flatMap(sc => [sc.result.requiredRevenue, sc.result.predictedCost, Math.abs(sc.result.expectedContribution)]));
+  return `<div class="scenario-chart-legend"><span><i class="current"></i>รายได้</span><span><i class="projected"></i>ต้นทุน</span><span><i class="sim-contribution"></i>Contribution</span></div><div class="scenario-bars sim-bars">${rows.map(sc => `<div class="scenario-bar-group"><div class="scenario-bar-pair triple"><i class="current" style="height:${Math.max(2,sc.result.requiredRevenue/max*100)}%"><b>${bahtExact(sc.result.requiredRevenue)}</b></i><i class="projected" style="height:${Math.max(2,sc.result.predictedCost/max*100)}%"><b>${bahtExact(sc.result.predictedCost)}</b></i><i class="sim-contribution" style="height:${Math.max(2,Math.abs(sc.result.expectedContribution)/max*100)}%"><b>${bahtExact(sc.result.expectedContribution)}</b></i></div><span>${esc(sc.label)}</span></div>`).join('')}</div>`;
+}
+
+function simExecutiveInterpretation(base, scenarios) {
+  if (!base.ok) return '<p class="rp-empty">กรอกข้อมูลให้ครบเพื่อดูคำแนะนำ</p>';
+  const lines = [`จากสมมติฐานนี้ ควรมีรายได้อย่างน้อย ${bahtExact(base.requiredRevenue)} เพื่อให้ได้ Margin ${fmt(base.targetMargin,0)}%`];
+  const improve = scenarios.find(sc => sc.key === 'improveLf');
+  if (improve?.result?.ok && base.loadFactorEnabled) {
+    const diff = base.predictedCost - improve.result.predictedCost;
+    lines.push(`หาก Load Factor เพิ่มจาก ${fmt(base.loadFactor,0)}% เป็น ${fmt(improve.input.loadFactor,0)}% ต้นทุนที่ปรับด้วย Load Factor จะ${diff>=0?'ลดลง':'เพิ่มขึ้น'}ประมาณ ${bahtExact(Math.abs(diff))}`);
+  }
+  const moreTrips = scenarios.find(sc => sc.key === 'moreTrips');
+  if (moreTrips?.result?.ok) {
+    const diff = moreTrips.result.predictedCost - base.predictedCost;
+    lines.push(`หากเพิ่มจำนวนเที่ยวเป็น ${fmt(moreTrips.input.trips,0)} เที่ยว ต้นทุนคาดการณ์จะเพิ่มขึ้นประมาณ ${bahtExact(diff)} และต้องใช้รายได้ขั้นต่ำ ${bahtExact(moreTrips.result.requiredRevenue)}`);
+  }
+  return `<ol class="sim-interpretation">${lines.map(l => `<li>${l}</li>`).join('')}</ol>`;
+}
+
+function simCalculationDetail(r) {
+  if (!r.ok) return '<details class="scenario-advanced"><summary>รายละเอียดวิธีคำนวณ</summary><p class="rp-muted">กรอกข้อมูลให้ครบและถูกต้องเพื่อดูรายละเอียดการคำนวณ</p></details>';
+  const meta = simMethods[r.method];
+  const formula = r.method==='trip' ? `${meta.label} × จำนวนเที่ยว = ${fmt(r.rate,0)} × ${fmt(r.trips,0)}` : r.method==='km' ? `ระยะทาง × ${meta.label} × จำนวนเที่ยว = ${fmt(r.distance,0)} × ${fmt(r.rate,2)} × ${fmt(r.trips,0)}` : `ระยะทาง × น้ำหนักบรรทุก × ${meta.label} × จำนวนเที่ยว = ${fmt(r.distance,0)} × ${fmt(r.payload,1)} × ${fmt(r.rate,2)} × ${fmt(r.trips,0)}`;
+  return `<details class="scenario-advanced"><summary>รายละเอียดวิธีคำนวณ</summary><table class="simple-table"><tbody><tr><td>วิธีที่เลือก</td><td>${meta.label} (${meta.short})</td></tr><tr><td>สูตรต้นทุนก่อนปรับ Load Factor</td><td>${formula} = ${bahtExact(r.baseCost)}</td></tr><tr><td>ปรับด้วย Load Factor</td><td>${r.loadFactorEnabled ? `${bahtExact(r.baseCost)} ÷ ${fmt(r.loadFactor,0)}% = ${bahtExact(r.predictedCost)}` : 'ไม่ได้เปิดใช้งาน'}</td></tr><tr><td>ต้นทุนคาดการณ์รวม (Predicted Cost)</td><td>${bahtExact(r.predictedCost)}</td></tr><tr><td>รายได้ขั้นต่ำที่ควรได้</td><td>${bahtExact(r.predictedCost)} ÷ (1 − ${fmt(r.targetMargin,0)}%) = ${bahtExact(r.requiredRevenue)}</td></tr><tr><td>Contribution</td><td>${bahtExact(r.requiredRevenue)} − ${bahtExact(r.predictedCost)} = ${bahtExact(r.expectedContribution)}</td></tr><tr><td>Margin คาดการณ์</td><td>${customerPct(r.expectedMargin)}</td></tr></tbody></table><p class="rp-muted">การคำนวณทั้งหมดมาจากสมมติฐานที่ผู้ใช้กรอกเอง ไม่ได้อ้างอิงไฟล์ข้อมูลบริษัท</p></details>`;
+}
+
+function scenarioSimulatorSection() {
+  const s = simulatorState();
+  const r = calculateSimulator(s);
+  s._errors = r.ok ? {} : r.errors;
+  const scenarios = simComparisonScenarios(s, r);
+  return `<section class="scenario-panel scenario-model"><div class="scenario-section-head"><div><h2>Scenario Simulator</h2><p>จำลองต้นทุน รายได้ และผลตอบแทนจากสมมติฐานที่ผู้บริหารกำหนด</p></div></div><p class="sim-disclaimer">ผลลัพธ์เป็นการจำลองจากสมมติฐานของผู้ใช้ ไม่ใช่การพยากรณ์หรือผลลัพธ์ที่รับประกัน</p><div class="sim-form">${simInputGroup(s)}${simMethodCards(s)}${simTargetGroup(s)}<div class="sim-actions"><button type="button" class="sim-btn primary" data-sim-action="calc">คำนวณสถานการณ์</button><button type="button" class="sim-btn" data-sim-action="reset">รีเซ็ต</button></div></div><div id="simResults">${simKpiCards(r)}</div><section class="sim-comparison"><h3>Scenario Comparison</h3><p class="rp-muted">เปรียบเทียบเฉพาะการจำลอง (Simulation) ไม่ใช่การพยากรณ์ · ปรับสมมติฐานได้ด้านล่าง</p><div class="sim-comparison-config"><label><span>เพิ่มจำนวนเที่ยว (%) — More Trips</span><input data-sim="moreTripsPct" type="number" step="any" value="${esc(s.moreTripsPct)}"></label><label><span>Load Factor เป้าหมาย (%) — Improve Load Factor</span><input data-sim="improveLoadFactorTarget" type="number" min="0" max="100" step="any" value="${esc(s.improveLoadFactorTarget)}"></label></div><div id="simComparisonTable">${simComparisonTable(scenarios)}</div><div class="scenario-chart-wrap"><h3>เปรียบเทียบผลลัพธ์แต่ละกรณี</h3><div id="simComparisonChart">${simComparisonChart(scenarios)}</div></div></section><section class="sim-interpretation-panel"><h3>ผลลัพธ์สำหรับผู้บริหาร</h3><div id="simInterpretation">${simExecutiveInterpretation(r, scenarios)}</div></section><div id="simDetail">${simCalculationDetail(r)}</div></section>`;
 }
 
 
@@ -1369,6 +1445,15 @@ function render() {
   document.body?.classList.toggle('route-portfolio-view', state.page === 'trip_route');
   document.body?.classList.toggle('fleet-executive-view', state.page === 'fleet_util');
   document.body?.classList.toggle('scenario-executive-view', state.page === 'action_scenario');
+  if (state.page === 'action_scenario') {
+    $('pageTitle').textContent = 'NIM Executive Analytics · Management Action & Scenario';
+    if ($('routeHeaderControls')) $('routeHeaderControls').innerHTML = '';
+    $('pageSubtitle').textContent = 'จำลองต้นทุน รายได้ และผลตอบแทนจากสมมติฐานที่ผู้บริหารกำหนด';
+    $('yearFilter').disabled = false;
+    $('yearFilter').title = '';
+    c.innerHTML = managementActionPage();
+    return;
+  }
   if (!state.data?.ok) {
     c.innerHTML = `<div class="panel"><div class="panel-title">ยังไม่มีข้อมูลพร้อมสร้าง Dashboard</div><p>อัปโหลดหรือวางไฟล์ Prepared Dataset เช่น PQ67/PQ68/PQ69 ใน <code>input/</code> แล้วกด “ประมวลผลข้อมูล”</p>${state.data?.errors?.length ? `<pre>${esc(JSON.stringify(state.data.errors, null, 2))}</pre>` : ''}</div>`;
     return;
@@ -1379,7 +1464,7 @@ function render() {
   $('pageTitle').textContent = ['trip_route','fleet_util'].includes(state.page) ? title[state.page] : `NIM Executive Analytics · ${title[state.page]}`;
   if ($('routeHeaderControls')) $('routeHeaderControls').innerHTML = state.page === 'trip_route' ? rpHeaderControls(y) : '';
   $('pageSubtitle').textContent = state.page === 'fleet_util' ? 'วิเคราะห์การใช้รถ น้ำหนักบรรทุก และประสิทธิภาพตามชนิดรถ เส้นทาง และทิศทาง' : state.page === 'trip_route' ? 'วิเคราะห์ความสามารถในการทำกำไรของแต่ละเส้นทาง' : state.page === 'customer_credit' ? 'วิเคราะห์กำไรลูกค้าและตรวจสอบความเสี่ยงด้านเครดิตเมื่อมีข้อมูลลูกหนี้' : state.page === 'action_scenario' ? 'สรุปประเด็นที่ผู้บริหารควรดำเนินการ และจำลองผลกระทบทางการเงินจากการปรับรายได้และต้นทุน' : 'ระบบวิเคราะห์ข้อมูลเพื่อสนับสนุนการตัดสินใจของผู้บริหาร';
-  const pages = { overview: executiveOverviewPage, trip_route: tripRoutePage, fleet_util: fleetUtilizationPage, customer_credit: () => customerCreditPage(), action_scenario: managementActionPage };
+  const pages = { overview: executiveOverviewPage, trip_route: tripRoutePage, fleet_util: fleetUtilizationPage, customer_credit: () => customerCreditPage() };
   $('yearFilter').disabled = state.page === 'customer_credit';
   $('yearFilter').title = state.page === 'customer_credit' ? 'หน้านี้ใช้ข้อมูลทั้งหมดจากไฟล์ลูกค้ารายคน ไม่ได้กรองตามปีของ CM' : '';
   c.innerHTML = state.page === 'sources' ? sourcesPage() : state.page === 'trip_route' ? routePortfolioPage(y) : state.page === 'fleet_util' ? fleetExecutivePage(y) : state.page === 'customer_credit' ? customerCreditPage() : y.financial_basis === 'contribution_margin' ? cmPage(y) : pages[state.page](y);
@@ -1387,12 +1472,10 @@ function render() {
     $('fleetServiceYear')?.addEventListener('change', e => { state.serviceYear = Number(e.target.value); render(); });
     $('serviceYearFilter')?.addEventListener('change', e => { state.serviceYear = Number(e.target.value); render(); });
   }
-  if (y.financial_basis === 'contribution_margin' || state.page === 'action_scenario') {
+  if (y.financial_basis === 'contribution_margin') {
     if ($('cmSearch')) $('cmSearch').addEventListener('change', e => { state.cmFilter = {...(state.cmFilter || {sort: 'contribution'}), search: e.target.value}; render(); });
     if ($('cmSort')) $('cmSort').addEventListener('change', e => { state.cmFilter = {...(state.cmFilter || {search: ''}), sort: e.target.value}; render(); });
-    document.querySelectorAll('[data-cm-scenario]').forEach(el => el.addEventListener('input', updateCMScenario));
   }
-  if (state.page === 'action_scenario') updateScenario();
 }
 
 async function loadData() {
@@ -1457,7 +1540,6 @@ function syncScenarioPair(key, source) {
 }
 
 function updateScenario() {
-  if (state.page === 'action_scenario') { updateCMScenario(); return; }
   if (state.page !== 'action_scenario') return;
   const y = current();
   if (!y) return;
@@ -1565,21 +1647,35 @@ function rpClick(event) {
 $('content').addEventListener('click', rpClick);
 $('content').addEventListener('click', e => {
   const page = e.target.closest('[data-page]');
-  const preset = e.target.closest('[data-cm-preset]');
-  if (page) {
-    document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active'));
-    document.querySelector(`.nav-item[data-page="${page.dataset.page}"]`)?.classList.add('active');
-    state.page = page.dataset.page;
-    render();
-    return;
-  }
-  if (preset) {
-    const presets = {base:{revenueGrowth:0,costReduction:0},optimistic:{revenueGrowth:5,costReduction:3},stress:{revenueGrowth:-5,costReduction:0}};
-    const values = presets[preset.dataset.cmPreset];
-    if (!values) return;
-    document.querySelectorAll('[data-cm-scenario]').forEach(el => { el.value = values[el.dataset.cmScenario]; });
-    updateCMScenario();
-  }
+  if (!page) return;
+  document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active'));
+  document.querySelector(`.nav-item[data-page="${page.dataset.page}"]`)?.classList.add('active');
+  state.page = page.dataset.page;
+  render();
+});
+$('content').addEventListener('input', e => {
+  const el = e.target.closest('[data-sim]');
+  if (!el || el.type === 'checkbox' || el.type === 'radio') return;
+  const s = simulatorState();
+  s[el.dataset.sim] = el.value;
+  localStorage.setItem('nimSimulator', JSON.stringify(s));
+});
+$('content').addEventListener('keydown', e => {
+  if (e.target.closest('[data-sim]') && e.key === 'Enter') { e.preventDefault(); render(); }
+});
+$('content').addEventListener('change', e => {
+  const el = e.target.closest('[data-sim]');
+  if (!el) return;
+  const s = simulatorState();
+  s[el.dataset.sim] = el.type === 'checkbox' ? el.checked : el.value;
+  localStorage.setItem('nimSimulator', JSON.stringify(s));
+  if (el.type === 'radio' || el.type === 'checkbox') render();
+});
+$('content').addEventListener('click', e => {
+  const action = e.target.closest('[data-sim-action]');
+  if (!action) return;
+  if (action.dataset.simAction === 'reset') { state.simulator = simulatorDefaults(); localStorage.removeItem('nimSimulator'); }
+  render();
 });
 $('content').addEventListener('keydown', e => { if(e.target.matches('[data-rp-route]') && (e.key==='Enter'||e.key===' ')){e.preventDefault();rpClick(e);} });
 $('nav').addEventListener('click', e => {
