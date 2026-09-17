@@ -38,5 +38,9 @@
   "สรุปเที่ยว 68.xlsx": {
     "category": "trip",
     "uploaded_at": "2026-09-17T10:18:25"
+  },
+  "ลูกค้า update.csv": {
+    "category": "customer",
+    "uploaded_at": "2026-09-18T00:15:13"
   }
 }

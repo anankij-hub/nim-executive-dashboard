@@ -63,11 +63,10 @@ TRIP_REQUIRED_COLUMNS = {
 
 CUSTOMER_REQUIRED_COLUMNS = {
     "Customer_Code",
-    "Allocated_Profit",
-    "Allocated_Profit_Margin_%",
-    "Sum of ราคารวม",
-    "Total_Allocated_Cost",
     "Customer_Strategy_Segment",
+    "Sum of Customer_Total_Revenue",
+    "Sum of Customer_Total_GP",
+    "Sum of Customer_GP_Margin",
 }
 CUSTOMER_STATUS_THRESHOLDS = {"highly_profitable": 20, "profitable": 0, "watch": -20}
 CUSTOMER_PRIORITY_CONFIG = {
@@ -731,17 +730,20 @@ def build_customer_summary():
             if not customer:
                 errors.append(f"แถว {source_row_number}: Customer_Code หายไป")
                 continue
-            revenue = customer_number(source.get("Sum of ราคารวม"))
-            cost = customer_number(source.get("Total_Allocated_Cost"))
+            revenue = customer_number(source.get("Sum of Customer_Total_Revenue"))
+            contribution = customer_number(source.get("Sum of Customer_Total_GP"))
+            # Cost is not provided directly in this schema; derive it from
+            # revenue - gross profit so downstream KPIs (allocated cost,
+            # return on cost) stay consistent without inventing a source value.
+            cost = revenue - contribution if revenue is not None and contribution is not None else None
             row = {
                 "customer": customer,
                 "revenue": revenue,
                 "allocated_cost": cost,
-                "source_allocated_profit": customer_number(source.get("Allocated_Profit")),
-                "source_margin_pct": customer_number(source.get("Allocated_Profit_Margin_%"), percent=True),
+                "source_gp_margin_pct": customer_number(source.get("Sum of Customer_GP_Margin"), percent=True),
                 "strategy_segment": (source.get("Customer_Strategy_Segment") or "").strip() or None,
             }
-            row["contribution"] = revenue - cost if revenue is not None and cost is not None else None
+            row["contribution"] = contribution
             row["margin_pct"] = row["contribution"] / revenue * 100 if row["contribution"] is not None and revenue not in (None, 0) else None
             row["return_on_cost_pct"] = row["contribution"] / cost * 100 if row["contribution"] is not None and cost not in (None, 0) else None
             row["profit_leakage"] = abs(row["contribution"]) if row["contribution"] is not None and row["contribution"] < 0 else (0 if row["contribution"] is not None else None)
