@@ -1,4 +1,4 @@
-const state = { page: 'overview', year: null, data: null, routeFilters: { view: 'attention', direction: 'all', metric: 'contribution', sort: 'desc', status: 'all', limit: 10, search: '' }, matrixFilters: { direction: 'all', profitability: 'margin_pct', quadrant: 'all', search: '' }, fleetFilters: { metric: 'revenue', sort: 'desc', limit: 12, search: '', status: 'all' }, serviceFilters: { metric: 'revenue', sort: 'desc', limit: 10, search: '', status: 'all' }, customerFilters: { queueSearch: '', status: 'all', segment: 'all', action: 'all', contribution: 'loss', sortMetric: 'contribution', sortDirection: 'asc', queueLimit: 50, detailSearch: '', detailPage: 1, detailLimit: 50 } };
+const state = { page: 'overview', year: null, data: null, customerTab: 'profitability', routeFilters: { view: 'attention', direction: 'all', metric: 'contribution', sort: 'desc', status: 'all', limit: 10, search: '' }, matrixFilters: { direction: 'all', profitability: 'margin_pct', quadrant: 'all', search: '' }, fleetFilters: { metric: 'revenue', sort: 'desc', limit: 12, search: '', status: 'all' }, serviceFilters: { metric: 'revenue', sort: 'desc', limit: 10, search: '', status: 'all' }, customerFilters: { queueSearch: '', status: 'all', segment: 'all', action: 'all', contribution: 'loss', sortMetric: 'contribution', sortDirection: 'asc', queueLimit: 50, detailSearch: '', detailPage: 1, detailLimit: 50 } };
 const $ = id => document.getElementById(id);
 const fmt = (v, d = 1) => Number(v || 0).toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
 const moneyM = v => `฿ ${fmt((v || 0) / 1e6, 1)}M`;
@@ -732,6 +732,53 @@ const customerStrategicActionLabel = value => (customerStrategicActionMeta[value
 const customerStrategicActionClass = value => (customerStrategicActionMeta[value] || ['', ''])[1];
 
 function customerData() { return state.data?.customer_summary; }
+function creditBillingData() { return state.data?.credit_billing_summary; }
+const customerBaht = value => value === null || value === undefined || !Number.isFinite(Number(value)) ? 'N/A' : `฿${fmt(Number(value),0)}`;
+
+function creditKpi(label, value, sub, icon, tone = 'blue') {
+  return `<div class="credit-kpi ${tone}"><span class="credit-kpi-icon">${icon}</span><div><h3>${esc(label)}</h3><strong>${value}</strong><small>${esc(sub || '')}</small></div></div>`;
+}
+
+function creditRiskBars(rows, tone = 'red') {
+  if (!rows?.length) return '<div class="empty-state">ยังไม่มีข้อมูล</div>';
+  const max = Math.max(...rows.map(row => Number(row.value || 0)), 1);
+  return `<div class="credit-risk-bars">${rows.slice(0,7).map(row => `<div class="credit-risk-bar-row"><div class="credit-risk-bar-label"><b title="${esc(row.label)}">${esc(row.label)}</b></div><div class="credit-risk-bar-track"><i class="${tone}" style="width:${Math.max(3, Number(row.value || 0)/max*100)}%"></i></div><strong>${customerBaht(row.value)}</strong></div>`).join('')}</div>`;
+}
+
+function creditAgeChart(rows) {
+  const visible = (rows || []).filter(row => Number(row.count || 0) > 0);
+  if (!visible.length) return '<div class="empty-state">ยังไม่มีข้อมูลอายุรายการ</div>';
+  const max = Math.max(...visible.map(row => Number(row.value || 0)), 1);
+  return `<div class="credit-age-chart">${visible.map((row,index) => `<div class="credit-age-col"><div class="credit-age-value">${customerBaht(row.value)}</div><div class="credit-age-track"><i style="height:${Math.max(8,Number(row.value||0)/max*100)}%" class="age-${index+1}"></i></div><b>${esc(row.label)}</b><small>${fmt(row.count,0)} รายการ</small></div>`).join('')}</div>`;
+}
+
+function creditPriorityTable(rows) {
+  const visible = (rows || []).slice(0,5);
+  if (!visible.length) return '<div class="empty-state">ยังไม่มีลูกค้าที่ต้องเร่งดำเนินการ</div>';
+  return `<div class="credit-priority-wrap"><table class="simple-table credit-priority-table"><thead><tr><th>#</th><th>Customer Code</th><th>มูลค่า (บาท)</th><th>สถานะ</th><th>อายุ (วัน)</th><th>คำแนะนำ</th></tr></thead><tbody>${visible.map((row,index) => `<tr><td>${index+1}</td><td><b>${esc(row.customer)}</b></td><td>${customerBaht(row.value)}</td><td><span class="credit-status ${String(row.status||'').includes('หนี้สงสัยจะสูญ')?'danger':String(row.status||'').includes('เกิน 3 เดือน')?'warn':'info'}">${esc(row.status || 'ไม่ระบุ')}</span></td><td>${row.max_age_days==null?'N/A':fmt(row.max_age_days,0)}</td><td><span class="credit-action ${String(row.recommendation||'').includes('เร่ง')?'urgent':'normal'}">${esc(row.recommendation || 'Review')}</span></td></tr>`).join('')}</tbody></table></div>`;
+}
+
+function customerCreditBillingView() {
+  const risk = creditBillingData();
+  if (!risk?.ok) return `<div class="panel"><div class="panel-title">Credit & Billing Risk ยังไม่พร้อมใช้งาน</div><div class="panel-sub">ให้นำไฟล์เครดิตจ่ายช้าและไฟล์บิลล่าช้าจากกระบวนการภายในไว้ใน input/ แล้วประมวลผลข้อมูลบน localhost</div><p>${esc((risk?.errors || []).join(' · '))}</p></div>`;
+  const t = risk.totals || {};
+  const badDebtSub = `${fmt(t.bad_debt_rows || 0,0)} รายการ${t.bad_debt_share_pct==null?'':` (${fmt(t.bad_debt_share_pct,1)}% ของมูลค่าที่ต้องติดตาม)`}`;
+  return `<div class="credit-risk-kpis">
+    ${creditKpi('ลูกค้าที่มีรายการยังไม่ได้ชำระ', `${fmt(t.collection_customers || 0,0)} ราย`, `จากทั้งหมด ${fmt(t.collection_source_customers || 0,0)} ราย`, '◎', 'red')}
+    ${creditKpi('มูลค่ารายการที่ยังไม่ได้ชำระ', customerBaht(t.collection_value), `${fmt(t.collection_open_rows || 0,0)} รายการ`, '฿', 'red')}
+    ${creditKpi('หนี้สงสัยจะสูญ', customerBaht(t.bad_debt_value), badDebtSub, '!', 'orange')}
+    ${creditKpi('มูลค่าบิลล่าช้าจากกระบวนการภายใน', customerBaht(t.billing_value), `${fmt(t.billing_open_rows || 0,0)} รายการ | ${fmt(t.billing_customers || 0,0)} ลูกค้า`, '▤', 'blue')}
+  </div>
+  <div class="credit-risk-grid">
+    <section class="panel credit-risk-panel"><div class="panel-head"><div><div class="panel-title">1. Collection Risk (เครดิตจ่ายช้า)</div><div class="panel-sub">มูลค่าที่ต้องติดตามตามสถานะการชำระเงิน</div></div><span class="credit-metric-chip active">มูลค่า (฿)</span></div>${creditRiskBars(risk.collection_status,'red')}</section>
+    <section class="panel credit-risk-panel"><div class="panel-head"><div><div class="panel-title">2. Billing Process Bottleneck (บิลล่าช้าจากกระบวนการภายใน)</div><div class="panel-sub">มูลค่ารายการที่ยังไม่ได้ชำระตามขั้นตอนในกระบวนการ</div></div><span class="credit-metric-chip active">มูลค่า (฿)</span></div>${creditRiskBars(risk.billing_status,'blue')}</section>
+  </div>
+  <div class="credit-risk-grid credit-risk-bottom">
+    <section class="panel"><div class="panel-title">3. อายุรายการจากวันที่บันทึก</div><div class="panel-sub">เฉพาะรายการที่ยังไม่ได้ชำระ · ไม่ใช่ DSO หรือ Days Overdue</div>${creditAgeChart(risk.age_buckets)}</section>
+    <section class="panel"><div class="panel-head"><div><div class="panel-title">4. ลูกค้าที่ควรเร่งดำเนินการ (Top Priority)</div><div class="panel-sub">จัดอันดับตามมูลค่ารายการในไฟล์เครดิตจ่ายช้า</div></div></div>${creditPriorityTable(risk.priority_customers)}</section>
+  </div>
+  <div class="page-note credit-risk-note"><b>ข้อควรตีความ:</b> “รายได้รวม” ในสองไฟล์ถูกใช้เป็น <b>มูลค่ารายการที่ต้องติดตาม</b> ตามข้อมูลต้นทาง ไม่เรียกว่า Outstanding A/R จนกว่าจะมี Due Date และยอดลูกหนี้คงค้างที่ยืนยันได้ · อายุรายการคำนวณจากวันที่ในไฟล์เครดิตจ่ายช้าถึงวันที่ประมวลผล</div>`;
+}
 
 function customerQueueRows() {
   const summary = customerData(), f = state.customerFilters;
@@ -825,19 +872,27 @@ function customerDetailTable(summary) {
   return `<div class="panel customer-detail-panel"><div class="panel-head"><div><div class="panel-title">รายละเอียดลูกค้ารายคน</div><div class="panel-sub">${fmt(rows.length,0)} รายการตามคำค้น · แสดงครั้งละ ${f.detailLimit} รายการ</div></div><div class="customer-detail-controls"><input data-customer-control="detailSearch" type="search" value="${esc(f.detailSearch)}" placeholder="ค้นหารหัสลูกค้า"><select data-customer-control="detailLimit">${[25,50,100].map(n => `<option value="${n}" ${Number(f.detailLimit)===n?'selected':''}>${n} รายการ</option>`).join('')}</select></div></div><div class="customer-table-wrap"><table class="simple-table customer-table detail-table"><thead><tr><th>ลูกค้า</th><th>รายได้</th><th>ต้นทุนจัดสรร</th><th>Contribution</th><th>Margin</th><th>ผลตอบแทนต่อต้นทุน</th><th>กลยุทธ์ลูกค้า</th><th>สถานะการทำกำไร</th><th>แนวทางเชิงกลยุทธ์</th></tr></thead><tbody>${visible.length ? visible.map(row => `<tr><td><b>${esc(row.customer)}</b></td><td>${customerMoney(row.revenue)}</td><td>${customerMoney(row.allocated_cost)}</td><td class="${row.contribution < 0 ? 'loss' : 'good'}">${customerMoney(row.contribution)}</td><td class="${row.margin_pct < 0 ? 'loss' : 'good'}">${customerPct(row.margin_pct)}</td><td>${customerPct(row.return_on_cost_pct)}</td><td>${esc(row.strategy_segment || 'ไม่มีข้อมูล')}</td><td>${esc(customerStatusLabel(row.profitability_status))}</td><td><span class="strategic-action ${customerStrategicActionClass(row.strategic_action)}">${customerStrategicActionLabel(row.strategic_action)}</span></td></tr>`).join('') : '<tr><td colspan="9">ไม่พบลูกค้าที่ตรงกับคำค้น</td></tr>'}</tbody></table></div><div class="customer-pagination"><button data-customer-page="prev" ${page <= 1 ? 'disabled' : ''}>ก่อนหน้า</button><span>หน้า ${page} / ${pages}</span><button data-customer-page="next" ${page >= pages ? 'disabled' : ''}>ถัดไป</button></div></div>`;
 }
 
-function customerPage() {
-  const summary = customerData();
-  if (!summary?.ok) return `<div class="panel"><div class="panel-title">Customer Profitability ยังไม่พร้อมใช้งาน</div><p>${esc(summary?.errors?.join(' · ') || 'ไม่พบข้อมูลลูกค้าที่ผ่าน schema')}</p></div>`;
+function customerProfitabilityView(summary) {
   const t = summary.totals || {};
   const queueRows = customerQueueRows();
-  return `<div class="customer-page-intro customer-page-intro-clean"><div><h2>กำไรลูกค้าและลำดับความสำคัญในการบริหาร</h2></div><span class="customer-source-badge">${esc(summary.source)} · ลูกค้า ${fmt(summary.row_count,0)} ราย</span></div>
-  <div class="customer-kpis">${customerKpi('จำนวนลูกค้าทั้งหมด', fmt(t.customer_count,0), 'จากข้อมูลลูกค้ารายคน', '◎','blue')}${customerKpi('รายได้รวม', customerMoney(t.revenue), 'รวมลูกค้าทั้งหมด', '฿','blue')}${customerKpi('ต้นทุนที่จัดสรร', customerMoney(t.allocated_cost), 'ต้นทุนตามข้อมูลลูกค้า', '▣','amber')}${customerKpi('Contribution รวม', customerMoney(t.contribution), 'รายได้ - ต้นทุนจัดสรร', '▲','green')}${customerKpi('Margin รวม', customerPct(t.margin_pct), 'Contribution ÷ รายได้', '%','purple')}${customerKpi('ลูกค้า Contribution ติดลบ', fmt(t.loss_making_count,0), 'เข้าสู่คิวบริหาร', '▼','coral')}${customerKpi('ส่วนต่างติดลบ (Profit Leakage)', customerMoney(t.profit_leakage), 'รวมเฉพาะลูกค้าที่ขาดทุน', '⚠','coral')}${customerKpi('รายได้ที่มีความเสี่ยง', customerMoney(t.revenue_at_risk), 'รายได้ของลูกค้าที่ขาดทุน', '◌','amber')}</div>
+  return `<div class="customer-kpis">${customerKpi('จำนวนลูกค้าทั้งหมด', fmt(t.customer_count,0), 'จากข้อมูลลูกค้ารายคน', '◎','blue')}${customerKpi('รายได้รวม', customerMoney(t.revenue), 'รวมลูกค้าทั้งหมด', '฿','blue')}${customerKpi('ต้นทุนที่จัดสรร', customerMoney(t.allocated_cost), 'ต้นทุนตามข้อมูลลูกค้า', '▣','amber')}${customerKpi('Contribution รวม', customerMoney(t.contribution), 'รายได้ - ต้นทุนจัดสรร', '▲','green')}${customerKpi('Margin รวม', customerPct(t.margin_pct), 'Contribution ÷ รายได้', '%','purple')}${customerKpi('ลูกค้า Contribution ติดลบ', fmt(t.loss_making_count,0), 'เข้าสู่คิวบริหาร', '▼','coral')}${customerKpi('ส่วนต่างติดลบ (Profit Leakage)', customerMoney(t.profit_leakage), 'รวมเฉพาะลูกค้าที่ขาดทุน', '⚠','coral')}${customerKpi('รายได้ที่มีความเสี่ยง', customerMoney(t.revenue_at_risk), 'รายได้ของลูกค้าที่ขาดทุน', '◌','amber')}</div>
   <div class="grid customer-analysis-grid"><div class="panel"><div class="panel-title">ลูกค้าที่สร้าง Contribution สูงสุด</div><div class="panel-sub">10 อันดับแรก เฉพาะลูกค้าที่ Contribution เป็นบวก</div>${customerBars(summary.top_contributors, 'contribution', 'Contribution')}</div><div class="panel"><div class="panel-title">ลูกค้าที่มีส่วนต่างติดลบสูงสุด</div><div class="panel-sub">10 อันดับแรก เรียงตามขนาด Profit Leakage</div>${customerBars(summary.largest_leakage, 'profit_leakage', 'Profit Leakage')}</div></div>
   <div class="panel customer-matrix-panel"><div class="panel-head"><div><div class="panel-title">เมทริกซ์กำไรลูกค้า</div><div class="panel-sub">แกน X = รายได้ · แกน Y = Margin % · เส้นแบ่งรายได้ใช้ค่ามัธยฐาน ${customerMoney(summary.thresholds?.matrix_revenue_median)} · จุดคุ้มทุน = 0%</div></div></div><div class="panel-sub">กดจุดเพื่อดูรายละเอียดลูกค้า · กดการ์ดกลุ่มด้านล่างเพื่อดูรายชื่อ</div>${customerMatrixSVG(summary)}</div>
   ${customerPortfolio(summary)}
   <div class="panel customer-queue-panel"><div class="panel-head"><div><div class="panel-title">ลูกค้าที่มี Contribution ติดลบ</div><div class="panel-sub">เรียงจากยอดขาดทุนมากไปน้อย · พบ ${fmt(queueRows.length,0)} รายการตามตัวกรอง</div></div></div><div class="customer-queue-guide"><b>อ่านตารางนี้อย่างไร?</b><span><strong>Contribution</strong>: ส่วนต่างหลังหักต้นทุนจัดสรรแล้ว ถ้าติดลบแปลว่ารายได้น้อยกว่าต้นทุน</span><span><strong>สถานะการทำกำไร</strong>: จัดกลุ่มจาก Margin เพื่อบอกระดับการทำกำไรหรือขาดทุน</span></div>${customerFilterControls(summary)}${customerQueueTable(queueRows)}</div>
   ${customerDetailTable(summary)}
   <div class="page-note customer-note"><b>หลักการคำนวณ:</b> คะแนนความสำคัญ = 50% คะแนนขนาดส่วนต่างติดลบ + 30% คะแนนรายได้ที่มีความเสี่ยง + 20% คะแนนความรุนแรงของ Margin โดยจัดอันดับ Percentile เฉพาะกลุ่มลูกค้าที่ขาดทุนเท่านั้น · หากข้อมูลไม่พร้อมจะแสดง N/A</div>`;
+}
+
+function customerPage() {
+  const summary = customerData();
+  const tab = state.customerTab || 'profitability';
+  const sourceText = tab === 'credit' ? 'ข้อมูลเครดิตและบิลล่าช้า' : (summary?.source ? `${summary.source} · ลูกค้า ${fmt(summary.row_count,0)} ราย` : 'ข้อมูลลูกค้า');
+  const header = `<div class="customer-page-intro customer-page-intro-credit"><div><h2>Customer Profitability &amp; Credit Risk</h2><p>วิเคราะห์ความสามารถในการทำกำไรของลูกค้า และความเสี่ยงด้านการชำระเงิน</p></div><span class="customer-source-badge">${esc(sourceText)}</span></div>
+    <div class="customer-tabs" role="tablist" aria-label="Customer analysis view"><button type="button" class="customer-tab-btn ${tab==='profitability'?'active':''}" data-customer-tab="profitability">Profitability</button><button type="button" class="customer-tab-btn ${tab==='credit'?'active':''}" data-customer-tab="credit">Credit &amp; Billing Risk</button></div>`;
+  if (tab === 'credit') return header + customerCreditBillingView();
+  if (!summary?.ok) return header + `<div class="panel"><div class="panel-title">Customer Profitability ยังไม่พร้อมใช้งาน</div><p>${esc(summary?.errors?.join(' · ') || 'ไม่พบข้อมูลลูกค้าที่ผ่าน schema')}</p></div>`;
+  return header + customerProfitabilityView(summary);
 }
 
 function selectedTripSummary() {
@@ -1037,8 +1092,9 @@ function sourcesPage() {
   const catalog = ds.source_catalog || [];
   const trip = ds.trip_summary || {};
   const customer = ds.customer_summary || {};
+  const credit = ds.credit_billing_summary || {};
   return `<div class="panel"><div class="panel-title">Data Sources</div><div class="panel-sub">ระบบแยกประเภทไฟล์และระบุว่าไฟล์ใดถูกใช้สร้าง Dashboard ปัจจุบัน</div><table class="simple-table"><thead><tr><th>ไฟล์</th><th>ประเภทข้อมูล</th><th>ปี</th><th>สถานะ</th><th>ขนาด</th></tr></thead><tbody>${catalog.length ? catalog.map(f => `<tr><td>${esc(f.name)}</td><td>${esc(categoryLabel[f.category] || f.category || 'Other')}</td><td>${f.year || '—'}</td><td>${f.used_in_dashboard ? '<span class="status-ready">ใช้ใน Dashboard</span>' : '<span class="status-wait">จัดเก็บ / ยังไม่เชื่อม</span>'}</td><td>${esc(f.size_human || '')}</td></tr>`).join('') : '<tr><td colspan="5">ยังไม่มีไฟล์ใน input/</td></tr>'}</tbody></table></div>
-  <div class="grid"><div class="panel"><div class="panel-title">ความพร้อมของ Dashboard 5 หน้า</div><div class="readiness-list"><div><b>Executive Overview</b><span>${ds.years?.length ? 'พร้อมใช้งาน' : 'ยังไม่มี Prepared Dataset'}</span></div><div><b>Trip &amp; Route Profitability</b><span>${trip.ok ? `${fmt(trip.candidate_trip_count || 0, 0)} candidate records` : 'ยังไม่มีข้อมูลเที่ยว'}</span></div><div><b>Fleet Utilization &amp; Load Efficiency</b><span>${trip.ok ? 'พร้อมใช้งานแบบ validated subset' : 'ยังไม่มีข้อมูลเที่ยว'}</span></div><div><b>Customer Profitability</b><span>${customer.ok ? `${fmt(customer.row_count || 0, 0)} customers` : 'ยังไม่มีข้อมูลลูกค้า'}</span></div><div><b>Credit Risk</b><span>รอ A/R dataset</span></div><div><b>Management Action &amp; Scenario</b><span>${ds.years?.length ? 'พร้อมใช้งานจากฐาน Revenue/Cost' : 'ยังไม่มีข้อมูลฐาน'}</span></div></div></div><div class="panel"><div class="panel-title">ข้อมูลที่ยังรอเพิ่มเติม</div><div class="panel-sub">ข้อมูลต่อไปนี้ยังไม่ถูกสร้างเป็นค่าประมาณ และจะแสดง N/A จนกว่าจะมี source ที่ตรวจสอบได้</div><div class="tag-cloud"><span>Distance / km</span><span>Empty Trip</span><span>Empty Backhaul</span><span>Service Group</span><span>Wasted Cost Definition</span><span>A/R / DSO</span></div></div></div>`;
+  <div class="grid"><div class="panel"><div class="panel-title">ความพร้อมของ Dashboard 5 หน้า</div><div class="readiness-list"><div><b>Executive Overview</b><span>${ds.years?.length ? 'พร้อมใช้งาน' : 'ยังไม่มี Prepared Dataset'}</span></div><div><b>Trip &amp; Route Profitability</b><span>${trip.ok ? `${fmt(trip.candidate_trip_count || 0, 0)} candidate records` : 'ยังไม่มีข้อมูลเที่ยว'}</span></div><div><b>Fleet Utilization &amp; Load Efficiency</b><span>${trip.ok ? 'พร้อมใช้งานแบบ validated subset' : 'ยังไม่มีข้อมูลเที่ยว'}</span></div><div><b>Customer Profitability</b><span>${customer.ok ? `${fmt(customer.row_count || 0, 0)} customers` : 'ยังไม่มีข้อมูลลูกค้า'}</span></div><div><b>Credit &amp; Billing Risk</b><span>${credit.ok ? `${fmt(credit.totals?.collection_customers || 0,0)} ลูกค้าเร่งรัด · ${fmt(credit.totals?.billing_open_rows || 0,0)} บิลล่าช้า` : 'รอข้อมูลเครดิต/บิลล่าช้า'}</span></div><div><b>Management Action &amp; Scenario</b><span>${ds.years?.length ? 'พร้อมใช้งานจากฐาน Revenue/Cost' : 'ยังไม่มีข้อมูลฐาน'}</span></div></div></div><div class="panel"><div class="panel-title">ข้อมูลที่ยังรอเพิ่มเติม</div><div class="panel-sub">ข้อมูลต่อไปนี้ยังไม่ถูกสร้างเป็นค่าประมาณ และจะแสดง N/A จนกว่าจะมี source ที่ตรวจสอบได้</div><div class="tag-cloud"><span>Distance / km</span><span>Empty Trip</span><span>Empty Backhaul</span><span>Service Group</span><span>Wasted Cost Definition</span><span>A/R / DSO</span></div></div></div>`;
 }
 
 function cmNotice(y) {
@@ -1884,6 +1940,12 @@ $('content').addEventListener('change', e => {
   state.customerFilters[key] = ['queueLimit', 'detailLimit'].includes(key) ? Number(el.value) : el.value;
   if (key === 'detailLimit') state.customerFilters.detailPage = 1;
   if (state.page === 'customer_credit') render();
+});
+$('content').addEventListener('click', e => {
+  const tab = e.target.closest('[data-customer-tab]');
+  if (!tab) return;
+  state.customerTab = tab.dataset.customerTab === 'credit' ? 'credit' : 'profitability';
+  render();
 });
 $('content').addEventListener('click', e => {
   const button = e.target.closest('[data-customer-page]');
