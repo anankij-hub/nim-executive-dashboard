@@ -762,7 +762,12 @@ def build_customer_summary():
     for row in profitable:
         high_revenue = revenue_p75 is not None and row["revenue"] >= revenue_p75
         high_margin = margin_p75 is not None and row["margin_pct"] >= margin_p75
-        row["strategic_action"] = "PROTECT" if high_revenue else ("GROW" if high_margin else None)
+        # Every profitable customer gets a tier: MAINTAIN covers those below
+        # both P75 cutoffs so the column is never left blank.
+        row["strategic_action"] = "PROTECT" if high_revenue else ("GROW" if high_margin else "MAINTAIN")
+    for row in rows:
+        if row["contribution"] is not None and row["contribution"] <= 0:
+            row["strategic_action"] = "REVIEW"
 
     eligible = [row.copy() for row in rows if row["contribution"] is not None and row["contribution"] < 0]
     leakage_scores = percentile_scores(eligible, "profit_leakage")

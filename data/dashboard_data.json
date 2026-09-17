@@ -2,7 +2,7 @@
   "ok": true,
   "cached": true,
   "needs_process": false,
-  "generated_at": "2026-09-18T00:21:50",
+  "generated_at": "2026-09-18T00:33:45",
   "processor_version": "wasted-cost-7",
   "source_signature": [
     [
@@ -123890,7 +123890,7 @@
         "profit_leakage": 0,
         "revenue_at_risk": 0,
         "profitability_status": "Highly Profitable",
-        "strategic_action": null,
+        "strategic_action": "MAINTAIN",
         "matrix_quadrant": "key_profit_generator"
       },
       {
@@ -123905,7 +123905,7 @@
         "profit_leakage": 0,
         "revenue_at_risk": 0,
         "profitability_status": "Highly Profitable",
-        "strategic_action": null,
+        "strategic_action": "MAINTAIN",
         "matrix_quadrant": "key_profit_generator"
       },
       {
@@ -123920,7 +123920,7 @@
         "profit_leakage": 0,
         "revenue_at_risk": 0,
         "profitability_status": "Highly Profitable",
-        "strategic_action": null,
+        "strategic_action": "MAINTAIN",
         "matrix_quadrant": "key_profit_generator"
       },
       {
@@ -123950,7 +123950,7 @@
         "profit_leakage": 0,
         "revenue_at_risk": 0,
         "profitability_status": "Highly Profitable",
-        "strategic_action": null,
+        "strategic_action": "MAINTAIN",
         "matrix_quadrant": "key_profit_generator"
       },
       {
@@ -123965,7 +123965,7 @@
         "profit_leakage": 0,
         "revenue_at_risk": 0,
         "profitability_status": "Highly Profitable",
-        "strategic_action": null,
+        "strategic_action": "MAINTAIN",
         "matrix_quadrant": "key_profit_generator"
       },
       {
@@ -123980,7 +123980,7 @@
         "profit_leakage": 0,
         "revenue_at_risk": 0,
         "profitability_status": "Highly Profitable",
-        "strategic_action": null,
+        "strategic_action": "MAINTAIN",
         "matrix_quadrant": "key_profit_generator"
       },
       {
@@ -124025,7 +124025,7 @@
         "profit_leakage": 0,
         "revenue_at_risk": 0,
         "profitability_status": "Highly Profitable",
-        "strategic_action": null,
+        "strategic_action": "MAINTAIN",
         "matrix_quadrant": "key_profit_generator"
       },
       {
@@ -124040,7 +124040,7 @@
         "profit_leakage": 0,
         "revenue_at_risk": 0,
         "profitability_status": "Highly Profitable",
-        "strategic_action": null,
+        "strategic_action": "MAINTAIN",
         "matrix_quadrant": "key_profit_generator"
       },
       {
@@ -124055,7 +124055,7 @@
         "profit_leakage": 0,
         "revenue_at_risk": 0,
         "profitability_status": "Highly Profitable",
-        "strategic_action": null,
+        "strategic_action": "MAINTAIN",
         "matrix_quadrant": "key_profit_generator"
       },
       {
@@ -124070,7 +124070,7 @@
         "profit_leakage": 0,
         "revenue_at_risk": 0,
         "profitability_status": "Highly Profitable",
-        "strategic_action": null,
+        "strategic_action": "MAINTAIN",
         "matrix_quadrant": "growth_opportunity"
       },
       {
@@ -124085,7 +124085,7 @@
         "profit_leakage": 0,
         "revenue_at_risk": 0,
         "profitability_status": "Highly Profitable",
-        "strategic_action": null,
+        "strategic_action": "MAINTAIN",
         "matrix_quadrant": "growth_opportunity"
       },
       {
@@ -124100,7 +124100,7 @@
         "profit_leakage": 0,
         "revenue_at_risk": 0,
         "profitability_status": "Highly Profitable",
-        "strategic_action": null,
+        "strategic_action": "MAINTAIN",
         "matrix_quadrant": "growth_opportunity"
       },
       {
@@ -124130,7 +124130,7 @@
         "profit_leakage": 0,
         "revenue_at_risk": 0,
         "profitability_status": "Highly Profitable",
-        "strategic_action": null,
+        "strategic_action": "MAINTAIN",
         "matrix_quadrant": "growth_opportunity"
       },
       {
@@ -124145,7 +124145,7 @@
         "profit_leakage": 0,
         "revenue_at_risk": 0,
         "profitability_status": "Highly Profitable",
-        "strategic_action": null,
+        "strategic_action": "MAINTAIN",
         "matrix_quadrant": "growth_opportunity"
       },
       {
@@ -124160,7 +124160,7 @@
         "profit_leakage": 0,
         "revenue_at_risk": 0,
         "profitability_status": "Highly Profitable",
-        "strategic_action": null,
+        "strategic_action": "MAINTAIN",
         "matrix_quadrant": "growth_opportunity"
       },
       {
@@ -124205,7 +124205,7 @@
         "profit_leakage": 0,
         "revenue_at_risk": 0,
         "profitability_status": "Highly Profitable",
-        "strategic_action": null,
+        "strategic_action": "MAINTAIN",
         "matrix_quadrant": "growth_opportunity"
       },
       {
@@ -124220,7 +124220,7 @@
         "profit_leakage": 0,
         "revenue_at_risk": 0,
         "profitability_status": "Highly Profitable",
-        "strategic_action": null,
+        "strategic_action": "MAINTAIN",
         "matrix_quadrant": "growth_opportunity"
       },
       {
@@ -124235,7 +124235,7 @@
         "profit_leakage": 0,
         "revenue_at_risk": 0,
         "profitability_status": "Highly Profitable",
-        "strategic_action": null,
+        "strategic_action": "MAINTAIN",
         "matrix_quadrant": "growth_opportunity"
       },
       {
@@ -124250,7 +124250,7 @@
         "profit_leakage": 0,
         "revenue_at_risk": 0,
         "profitability_status": "Highly Profitable",
-        "strategic_action": null,
+        "strategic_action": "MAINTAIN",
         "matrix_quadrant": "growth_opportunity"
       },
       {
@@ -124265,7 +124265,7 @@
         "profit_leakage": 0,
         "revenue_at_risk": 0,
         "profitability_status": "Highly Profitable",
-        "strategic_action": null,
+        "strategic_action": "MAINTAIN",
         "matrix_quadrant": "growth_opportunity"
       },
       {
@@ -124280,7 +124280,7 @@
         "profit_leakage": 0,
         "revenue_at_risk": 0,
         "profitability_status": "Highly Profitable",
-        "strategic_action": null,
+        "strategic_action": "MAINTAIN",
         "matrix_quadrant": "growth_opportunity"
       },
       {
@@ -124310,7 +124310,7 @@
         "profit_leakage": 0,
         "revenue_at_risk": 0,
         "profitability_status": "Highly Profitable",
-        "strategic_action": null,
+        "strategic_action": "MAINTAIN",
         "matrix_quadrant": "growth_opportunity"
       },
       {
@@ -124325,7 +124325,7 @@
         "profit_leakage": 0,
         "revenue_at_risk": 0,
         "profitability_status": "Highly Profitable",
-        "strategic_action": null,
+        "strategic_action": "MAINTAIN",
         "matrix_quadrant": "growth_opportunity"
       },
       {
@@ -124340,7 +124340,7 @@
         "profit_leakage": 0,
         "revenue_at_risk": 0,
         "profitability_status": "Highly Profitable",
-        "strategic_action": null,
+        "strategic_action": "MAINTAIN",
         "matrix_quadrant": "growth_opportunity"
       },
       {
@@ -124370,7 +124370,7 @@
         "profit_leakage": 0,
         "revenue_at_risk": 0,
         "profitability_status": "Highly Profitable",
-        "strategic_action": null,
+        "strategic_action": "MAINTAIN",
         "matrix_quadrant": "growth_opportunity"
       },
       {
@@ -124385,7 +124385,7 @@
         "profit_leakage": 0,
         "revenue_at_risk": 0,
         "profitability_status": "Highly Profitable",
-        "strategic_action": null,
+        "strategic_action": "MAINTAIN",
         "matrix_quadrant": "growth_opportunity"
       },
       {
@@ -124400,7 +124400,7 @@
         "profit_leakage": 0,
         "revenue_at_risk": 0,
         "profitability_status": "Highly Profitable",
-        "strategic_action": null,
+        "strategic_action": "MAINTAIN",
         "matrix_quadrant": "growth_opportunity"
       },
       {
@@ -124415,7 +124415,7 @@
         "profit_leakage": 0,
         "revenue_at_risk": 0,
         "profitability_status": "Highly Profitable",
-        "strategic_action": null,
+        "strategic_action": "MAINTAIN",
         "matrix_quadrant": "growth_opportunity"
       },
       {
@@ -124430,7 +124430,7 @@
         "profit_leakage": 0,
         "revenue_at_risk": 0,
         "profitability_status": "Highly Profitable",
-        "strategic_action": null,
+        "strategic_action": "MAINTAIN",
         "matrix_quadrant": "growth_opportunity"
       }
     ],
@@ -124583,7 +124583,7 @@
         "profit_leakage": 0,
         "revenue_at_risk": 0,
         "profitability_status": "Highly Profitable",
-        "strategic_action": null,
+        "strategic_action": "MAINTAIN",
         "matrix_quadrant": "key_profit_generator"
       }
     ],
