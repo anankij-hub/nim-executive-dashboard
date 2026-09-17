@@ -31,6 +31,7 @@ def parse_cm(wb, year, source):
         sheet_names = quarter_sheets
     else:
         sheet_names = ['CM']
+    use_full_year_2568_rows = year == 2568 and full_year_2568 in sheet_names
     records = []
     source_sheets = []
     for sheet_name in sheet_names:
@@ -59,7 +60,7 @@ def parse_cm(wb, year, source):
             reasons.append('missing_date_or_wrong_year')
         else:
             dates.append(dt.isoformat()[:10])
-        if not key or counts[key] > 1:
+        if not key or (counts[key] > 1 and not use_full_year_2568_rows):
             reasons.append('missing_or_duplicate_manifest')
         values = [finite(r[k]) for k in ['รวมรายได้', 'ต้นทุนผันแปร', 'Contribution Margin']]
         if any(v is None for v in values):
