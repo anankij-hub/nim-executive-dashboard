@@ -1203,6 +1203,15 @@ def attach_route_operations(financial, operational):
 
 def build_dashboard_data():
     files=prepared_files()
+    if not files:
+        cache_path = DATA_DIR / "dashboard_data.json"
+        if cache_path.exists():
+            cached = json.loads(cache_path.read_text(encoding="utf-8"))
+            cached["cached"] = True
+            cached["needs_process"] = True
+            cached["processing_warning"] = "ไม่พบไฟล์ข้อมูลใน input/ จึงคง cache ล่าสุดไว้ ไม่เขียนทับด้วยข้อมูลว่าง"
+            return cached
+        return {"ok": False, "cached": False, "needs_process": True, "years": [], "available_years": [], "errors": [{"file": "input/", "error": "ไม่พบไฟล์ข้อมูลสำหรับประมวลผล"}]}
     signature=current_signature()
     years=[]; errors=[]
     for y,p in files:
