@@ -5,6 +5,19 @@ const moneyM = v => `฿ ${fmt((v || 0) / 1e6, 1)}M`;
 const pct = v => `${fmt(v || 0, 1)}%`;
 const esc = s => String(s ?? '').replace(/[&<>'"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[c]));
 
+const IS_PUBLIC_DEPLOY = /(^|\.)onrender\.com$/i.test(window.location.hostname);
+
+function configurePublicDeployUI() {
+  if (!IS_PUBLIC_DEPLOY) return;
+  const processBtn = $('reloadDataBtn');
+  const uploadBtn = $('uploadDataBtn');
+  if (processBtn) {
+    processBtn.textContent = '↻ รีเฟรชข้อมูล';
+    processBtn.title = 'โหลดข้อมูล Dashboard ที่เผยแพร่ล่าสุด';
+  }
+  if (uploadBtn) uploadBtn.style.display = 'none';
+}
+
 function current() {
   return state.data?.years?.find(x => x.year === Number(state.year)) || state.data?.years?.at(-1);
 }
@@ -1588,7 +1601,11 @@ async function loadData() {
     ys.value = state.year || '';
     $('lastUpdated').textContent = state.data.generated_at ? new Date(state.data.generated_at).toLocaleString('th-TH') : '—';
     if (state.data.needs_process) {
-      c.innerHTML = `<div class="panel"><div class="panel-title">ต้องประมวลผลข้อมูลก่อน</div><p>${esc(state.data.message || 'กรุณากดประมวลผลข้อมูล')}</p><button class="upload-btn" onclick="document.getElementById('reloadDataBtn').click()">⚙ ประมวลผลข้อมูลตอนนี้</button></div>`;
+      if (IS_PUBLIC_DEPLOY) {
+        c.innerHTML = `<div class="panel"><div class="panel-title">Dashboard กำลังรอข้อมูลเวอร์ชันเผยแพร่</div><p>ข้อมูลบนเว็บไซต์นี้ได้รับการอัปเดตโดยผู้ดูแลระบบ กรุณาลองรีเฟรชอีกครั้งภายหลัง</p><button class="upload-btn" onclick="document.getElementById('reloadDataBtn').click()">↻ รีเฟรชข้อมูล</button></div>`;
+      } else {
+        c.innerHTML = `<div class="panel"><div class="panel-title">ต้องประมวลผลข้อมูลก่อน</div><p>${esc(state.data.message || 'กรุณากดประมวลผลข้อมูล')}</p><button class="upload-btn" onclick="document.getElementById('reloadDataBtn').click()">⚙ ประมวลผลข้อมูลตอนนี้</button></div>`;
+      }
       return;
     }
     render();
@@ -1598,6 +1615,10 @@ async function loadData() {
 }
 
 async function processData() {
+  if (IS_PUBLIC_DEPLOY) {
+    await loadData();
+    return;
+  }
   const c = $('content'), btn = $('reloadDataBtn');
   btn.disabled = true;
   btn.textContent = 'กำลังประมวลผล...';
@@ -1714,6 +1735,8 @@ function customerDrilldownClick(e) {
 document.addEventListener('click',customerDrilldownClick);
 $('content').addEventListener('input', e => { if(e.target.matches('[data-fv="search"]'))fleetViewChange(e); });
 $('content').addEventListener('change', e => { if(!e.target.matches('[data-fv="search"]'))fleetViewChange(e); });
+configurePublicDeployUI();
+
 $('content').addEventListener('click', e => {
   const vehicle=e.target.closest('[data-fv-vehicle]'),page=e.target.closest('[data-fv-page]');
   if(!vehicle&&!page)return;
@@ -1919,7 +1942,11 @@ $('content').addEventListener('change', e => {
     }
     filesView();
   }
-  openBtn.onclick = () => { modal.classList.remove('hidden'); refreshFiles(); };
+  openBtn.onclick = () => {
+    if (IS_PUBLIC_DEPLOY) return;
+    modal.classList.remove('hidden');
+    refreshFiles();
+  };
   closeBtn.onclick = cancelBtn.onclick = () => modal.classList.add('hidden');
   refresh.onclick = refreshFiles;
   input.onchange = e => { add(e.target.files); e.target.value = ''; };
