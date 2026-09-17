@@ -36,6 +36,8 @@ def parse_cm(wb, year, source):
     for sheet_name in sheet_names:
         rows = wb[sheet_name].iter_rows(values_only=True)
         headers = [str(v).strip().replace('Contibution Margin', 'Contribution Margin') for v in next(rows)]
+        if 'ชนิดรถ' not in headers and 'ชนิดรถ3' in headers:
+            headers[headers.index('ชนิดรถ3')] = 'ชนิดรถ'
         missing = set(COLUMNS) - set(headers)
         if missing:
             raise ValueError(f'{sheet_name}: missing columns: {sorted(missing)}')
