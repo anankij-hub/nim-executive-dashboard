@@ -31,7 +31,7 @@ def parse_cm(wb, year, source):
         sheet_names = quarter_sheets
     else:
         sheet_names = ['CM']
-    use_full_year_2568_rows = year == 2568 and full_year_2568 in sheet_names
+    deduplicate_full_year_2568 = year == 2568 and full_year_2568 in sheet_names
     records = []
     source_sheets = []
     for sheet_name in sheet_names:
@@ -47,9 +47,14 @@ def parse_cm(wb, year, source):
         source_sheets.append({'sheet': sheet_name, 'source_rows': len(sheet_records)})
     counts = Counter(str(r['เลขที่ใบรายการ']).strip() for _, r in records if r['เลขที่ใบรายการ'] is not None)
     accepted, issues, negative_rows, dates = [], [], [], []
+    seen_full_year_keys = set()
     for row_number, r in records:
         reasons = []
         key = str(r['เลขที่ใบรายการ'] or '').strip()
+        if deduplicate_full_year_2568 and key in seen_full_year_keys:
+            continue
+        if deduplicate_full_year_2568 and key:
+            seen_full_year_keys.add(key)
         dt = r['Date']
         if isinstance(dt, (int, float)) and not isinstance(dt, bool):
             try:
@@ -60,7 +65,7 @@ def parse_cm(wb, year, source):
             reasons.append('missing_date_or_wrong_year')
         else:
             dates.append(dt.isoformat()[:10])
-        if not key or (counts[key] > 1 and not use_full_year_2568_rows):
+        if not key or (counts[key] > 1 and not deduplicate_full_year_2568):
             reasons.append('missing_or_duplicate_manifest')
         values = [finite(r[k]) for k in ['รวมรายได้', 'ต้นทุนผันแปร', 'Contribution Margin']]
         if any(v is None for v in values):
