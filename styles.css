@@ -524,3 +524,102 @@ body .main .topbar h1{max-width:100%;white-space:nowrap;overflow:hidden;text-ove
 @media(max-width:800px){
   .customer-analysis-view .customer-page-intro-clean h2{font-size:18px}
 }
+
+/* Customer Credit & Billing Risk — executive two-tab view */
+.customer-page-intro-credit{align-items:flex-end;margin-bottom:10px}
+.customer-page-intro-credit h2{margin:0;color:#122d52;font-size:24px;line-height:1.2}
+.customer-page-intro-credit p{margin:5px 0 0;color:#6f8198;font-size:11px}
+.customer-tabs{display:flex;gap:8px;margin:0 0 14px;border-bottom:1px solid #dce6f2;padding-bottom:8px}
+.customer-tab-btn{min-width:180px;height:40px;border:1px solid #cddced;border-radius:9px;background:#f7faff;color:#294c77;font-size:11px;font-weight:800;cursor:pointer;transition:.15s ease}
+.customer-tab-btn:hover{background:#eef5ff;border-color:#a9c9ef}.customer-tab-btn.active{background:linear-gradient(180deg,#2f80ed,#1767d5);border-color:#1767d5;color:#fff;box-shadow:0 5px 12px rgba(23,103,213,.16)}
+.credit-risk-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:12px}
+.credit-kpi{min-width:0;min-height:110px;display:flex;align-items:flex-start;gap:12px;padding:15px;border:1px solid #dfe8f3;border-radius:14px;background:#fff;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.credit-kpi:before{content:"";position:absolute;inset:0;background:linear-gradient(135deg,rgba(47,128,237,.05),transparent 58%);pointer-events:none}
+.credit-kpi.red{background:#fff8f8;border-color:#f3dddd}.credit-kpi.orange{background:#fffaf4;border-color:#f3e2ca}.credit-kpi.blue{background:#f7fbff;border-color:#d9e8fa}
+.credit-kpi-icon{position:relative;z-index:1;display:grid;place-items:center;flex:0 0 42px;width:42px;height:42px;border-radius:50%;background:#e7f1ff;color:#1767d5;font-size:20px;font-weight:900}
+.credit-kpi.red .credit-kpi-icon{background:#ffe5e6;color:#df2935}.credit-kpi.orange .credit-kpi-icon{background:#fff0d8;color:#e47518}
+.credit-kpi>div{position:relative;z-index:1;min-width:0}.credit-kpi h3{margin:0 0 4px;color:#48617f;font-size:10px;line-height:1.35;font-weight:800}.credit-kpi strong{display:block;color:#145fc8;font-size:25px;line-height:1.1;white-space:normal}.credit-kpi.red strong{color:#d91f2c}.credit-kpi.orange strong{color:#e26512}.credit-kpi small{display:block;margin-top:7px;color:#71859f;font-size:9px;line-height:1.4}
+.credit-risk-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}.credit-risk-bottom{align-items:stretch}.credit-risk-panel{min-height:330px}.credit-metric-chip{display:inline-flex;align-items:center;padding:6px 10px;border:1px solid #cfe0f4;border-radius:8px;background:#f4f8fd;color:#416489;font-size:9px;font-weight:800;white-space:nowrap}.credit-metric-chip.active{background:#2f80ed;color:#fff;border-color:#2f80ed}
+.credit-risk-bars{display:flex;flex-direction:column;gap:14px;margin-top:22px}.credit-risk-bar-row{display:grid;grid-template-columns:160px 1fr 82px;gap:10px;align-items:center}.credit-risk-bar-label{min-width:0}.credit-risk-bar-label b{display:block;color:#334c6d;font-size:9px;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.credit-risk-bar-track{height:14px;border-radius:4px;background:#edf2f7;overflow:hidden}.credit-risk-bar-track i{display:block;height:100%;min-width:3px;border-radius:4px}.credit-risk-bar-track i.red{background:linear-gradient(90deg,#ff8a8e,#f35d64)}.credit-risk-bar-track i.blue{background:linear-gradient(90deg,#78b4ff,#2f80ed)}.credit-risk-bar-row strong{font-size:10px;color:#153a66;text-align:right;white-space:nowrap}
+.credit-age-chart{height:220px;display:flex;align-items:flex-end;justify-content:space-around;gap:18px;padding:16px 18px 0;border-bottom:1px solid #d7e1ed;margin-top:10px}.credit-age-col{height:100%;min-width:86px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;color:#45617f}.credit-age-value{font-size:11px;font-weight:900;color:#173d68;margin-bottom:6px}.credit-age-track{height:145px;width:74px;display:flex;align-items:flex-end;justify-content:center}.credit-age-track i{display:block;width:54px;min-height:8px;border-radius:5px 5px 0 0;background:linear-gradient(180deg,#6eafff,#3180df)}.credit-age-track i.age-2{background:linear-gradient(180deg,#8dbff8,#5a9ee9)}.credit-age-track i.age-3{background:linear-gradient(180deg,#74a7e5,#2f70c9)}.credit-age-col b{margin-top:8px;font-size:10px;color:#274b75}.credit-age-col small{margin-top:2px;font-size:9px;color:#7589a3}
+.credit-priority-wrap{overflow:auto;margin-top:10px}.credit-priority-table{min-width:650px}.credit-priority-table th{white-space:nowrap}.credit-priority-table td{font-size:9px;vertical-align:middle}.credit-status,.credit-action{display:inline-flex;align-items:center;border-radius:7px;padding:4px 7px;font-size:8px;font-weight:800;white-space:nowrap}.credit-status.danger{background:#ffe6e7;color:#c8323c}.credit-status.warn{background:#fff1d5;color:#9b6712}.credit-status.info{background:#eaf3ff;color:#3266a4}.credit-action.urgent{background:#fff0f1;color:#d43c46}.credit-action.normal{background:#edf4ff;color:#2f65a5}.credit-risk-note{margin-top:12px;line-height:1.6}
+@media(max-width:1180px){.credit-risk-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.credit-risk-bar-row{grid-template-columns:135px 1fr 75px}}
+@media(max-width:900px){.credit-risk-grid{grid-template-columns:1fr}.customer-page-intro-credit{align-items:flex-start;flex-direction:column}.credit-risk-panel{min-height:0}}
+@media(max-width:650px){.credit-risk-kpis{grid-template-columns:1fr}.customer-tabs{display:grid;grid-template-columns:1fr 1fr}.customer-tab-btn{min-width:0}.credit-risk-bar-row{grid-template-columns:110px 1fr 70px}.credit-age-chart{gap:8px;padding-left:4px;padding-right:4px}.credit-age-track{width:52px}.credit-age-track i{width:40px}.customer-page-intro-credit h2{font-size:20px}}
+
+
+/* === PASTEL KPI CARD OVERRIDE START === */
+
+/* Executive Overview KPI */
+.overview-kpi{
+  border:1px solid #cfe2fb;
+  background:linear-gradient(180deg,#f4f9ff 0%,#ffffff 100%);
+  box-shadow:0 7px 20px rgba(44,79,120,.06);
+}
+
+.overview-kpi.coral{
+  border-color:#ffc9c4;
+  background:linear-gradient(180deg,#fff2f0 0%,#fffafa 100%);
+}
+
+.overview-kpi.green{
+  border-color:#b9e7d3;
+  background:linear-gradient(180deg,#eefaf5 0%,#fafffc 100%);
+}
+
+.overview-kpi.purple{
+  border-color:#d9cdfb;
+  background:linear-gradient(180deg,#f6f2ff 0%,#fcfaff 100%);
+}
+
+.overview-kpi.indigo{
+  border-color:#cbd6fa;
+  background:linear-gradient(180deg,#f2f5ff 0%,#fbfcff 100%);
+}
+
+.overview-kpi.amber{
+  border-color:#f4d99d;
+  background:linear-gradient(180deg,#fff8e8 0%,#fffdf8 100%);
+}
+
+/* Customer Profitability KPI */
+.customer-kpi{
+  border:1px solid #cfe2fb;
+  background:linear-gradient(180deg,#f4f9ff 0%,#ffffff 100%);
+  box-shadow:0 7px 20px rgba(44,79,120,.06);
+}
+
+.customer-kpi.amber{
+  border-color:#f4d99d;
+  background:linear-gradient(180deg,#fff8e8 0%,#fffdf8 100%);
+}
+
+.customer-kpi.green{
+  border-color:#b9e7d3;
+  background:linear-gradient(180deg,#eefaf5 0%,#fafffc 100%);
+}
+
+.customer-kpi.purple{
+  border-color:#d9cdfb;
+  background:linear-gradient(180deg,#f6f2ff 0%,#fcfaff 100%);
+}
+
+.customer-kpi.coral{
+  border-color:#ffc9c4;
+  background:linear-gradient(180deg,#fff2f0 0%,#fffafa 100%);
+}
+
+/* เพิ่มความชัดของแถบสีด้านซ้าย */
+.overview-kpi:before,
+.customer-kpi:before{
+  width:4px;
+}
+
+/* ทำ icon ให้เด่นขึ้นเล็กน้อย */
+.overview-kpi-icon,
+.customer-kpi-icon{
+  box-shadow:0 3px 10px rgba(36,76,120,.06);
+}
+
+/* === PASTEL KPI CARD OVERRIDE END === */
+

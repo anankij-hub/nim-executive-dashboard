@@ -1,0 +1,335 @@
+{
+  "ok": true,
+  "generated_at": "2026-09-18T04:34:49+07:00",
+  "as_of_date": "2026-09-18",
+  "sources": {
+    "credit_delay": "ข้อมูลเครดิตจ่ายช้าที่เคยส่งให้เร่งรัด.csv",
+    "billing_delay": "ข้อมูลบิลที่ออกบิลล่าช้าเนื่องจากกระบวน.csv"
+  },
+  "totals": {
+    "collection_source_customers": 45,
+    "collection_customers": 35,
+    "collection_open_rows": 48,
+    "collection_value": 91517.0,
+    "bad_debt_rows": 23,
+    "bad_debt_value": 58553.0,
+    "bad_debt_share_pct": 63.980462646284295,
+    "billing_source_customers": 142,
+    "billing_customers": 108,
+    "billing_open_rows": 111,
+    "billing_value": 324739.0
+  },
+  "collection_status": [
+    {
+      "label": "หนี้สงสัยจะสูญ",
+      "count": 23,
+      "value": 58553.0
+    },
+    {
+      "label": "สายส่งบิล เกิน 3 เดือนเข้าเคลียร์",
+      "count": 3,
+      "value": 14402.0
+    },
+    {
+      "label": "เคลียร์รับบิลเกิน 3 เดือน",
+      "count": 18,
+      "value": 7494.0
+    },
+    {
+      "label": "รอส่งสาขา (เร่งรัด)",
+      "count": 1,
+      "value": 6544.0
+    },
+    {
+      "label": "เร่งรัดส่งบิลกลับสาย (ของเสียหายและแก้ราคา)",
+      "count": 1,
+      "value": 3000.0
+    },
+    {
+      "label": "สายส่งให้ เร่งรัด",
+      "count": 1,
+      "value": 1468.0
+    },
+    {
+      "label": "กำลังส่งไปสาขา (เร่งรัด)",
+      "count": 1,
+      "value": 56.0
+    }
+  ],
+  "billing_status": [
+    {
+      "label": "สายรับบิล",
+      "count": 72,
+      "value": 248888.0
+    },
+    {
+      "label": "เคลียร์สาขา รับเรื่อง โดยละเอียด",
+      "count": 28,
+      "value": 28161.0
+    },
+    {
+      "label": "สายส่งบิลเข้าเคลียร์เบื้องต้น",
+      "count": 3,
+      "value": 15418.0
+    },
+    {
+      "label": "ลูกค้ารับของแล้ว",
+      "count": 2,
+      "value": 14188.0
+    },
+    {
+      "label": "กำลังโอนบิลระหว่างสาขา (ระหว่างสาย)",
+      "count": 2,
+      "value": 11048.0
+    },
+    {
+      "label": "อยู่ที่เคลียร์ สาขา รับเรื่องเบื้องต้น",
+      "count": 2,
+      "value": 5710.0
+    },
+    {
+      "label": "เคลียร์ส่งกลับสาย",
+      "count": 1,
+      "value": 1170.0
+    },
+    {
+      "label": "กำลังส่งบิลให้สาย",
+      "count": 1,
+      "value": 156.0
+    }
+  ],
+  "age_buckets": [
+    {
+      "key": "<=90",
+      "label": "≤ 90 วัน",
+      "count": 0,
+      "value": 0
+    },
+    {
+      "key": "91-180",
+      "label": "91–180 วัน",
+      "count": 19,
+      "value": 30999.0
+    },
+    {
+      "key": "181-365",
+      "label": "181–365 วัน",
+      "count": 6,
+      "value": 1965.0
+    },
+    {
+      "key": ">365",
+      "label": "> 365 วัน",
+      "count": 23,
+      "value": 58553.0
+    }
+  ],
+  "priority_customers": [
+    {
+      "customer": "C***0600",
+      "value": 40860.0,
+      "count": 8,
+      "max_age_days": 682,
+      "status": "หนี้สงสัยจะสูญ",
+      "recommendation": "เร่งติดตาม"
+    },
+    {
+      "customer": "C***0396",
+      "value": 9810.0,
+      "count": 2,
+      "max_age_days": 680,
+      "status": "หนี้สงสัยจะสูญ",
+      "recommendation": "เร่งติดตาม"
+    },
+    {
+      "customer": "C***0056",
+      "value": 8000.0,
+      "count": 1,
+      "max_age_days": 162,
+      "status": "สายส่งบิล เกิน 3 เดือนเข้าเคลียร์",
+      "recommendation": "เร่งเคลียร์"
+    },
+    {
+      "customer": "C***0713",
+      "value": 6544.0,
+      "count": 1,
+      "max_age_days": 119,
+      "status": "รอส่งสาขา (เร่งรัด)",
+      "recommendation": "ติดตามสถานะ"
+    },
+    {
+      "customer": "C***0939",
+      "value": 6402.0,
+      "count": 2,
+      "max_age_days": 127,
+      "status": "สายส่งบิล เกิน 3 เดือนเข้าเคลียร์",
+      "recommendation": "เร่งเคลียร์"
+    },
+    {
+      "customer": "C***1102",
+      "value": 3150.0,
+      "count": 1,
+      "max_age_days": 668,
+      "status": "หนี้สงสัยจะสูญ",
+      "recommendation": "เร่งติดตาม"
+    },
+    {
+      "customer": "C***3637",
+      "value": 3000.0,
+      "count": 1,
+      "max_age_days": 139,
+      "status": "เร่งรัดส่งบิลกลับสาย (ของเสียหายและแก้ราคา)",
+      "recommendation": "ติดตามสถานะ"
+    },
+    {
+      "customer": "C***8476",
+      "value": 1852.0,
+      "count": 1,
+      "max_age_days": 142,
+      "status": "เคลียร์รับบิลเกิน 3 เดือน",
+      "recommendation": "เร่งเคลียร์"
+    },
+    {
+      "customer": "C***0018",
+      "value": 1468.0,
+      "count": 1,
+      "max_age_days": 115,
+      "status": "สายส่งให้ เร่งรัด",
+      "recommendation": "ติดตามสถานะ"
+    },
+    {
+      "customer": "C***7843",
+      "value": 1300.0,
+      "count": 1,
+      "max_age_days": 681,
+      "status": "หนี้สงสัยจะสูญ",
+      "recommendation": "เร่งติดตาม"
+    },
+    {
+      "customer": "C***8430",
+      "value": 1300.0,
+      "count": 1,
+      "max_age_days": 681,
+      "status": "หนี้สงสัยจะสูญ",
+      "recommendation": "เร่งติดตาม"
+    },
+    {
+      "customer": "C***0777",
+      "value": 800.0,
+      "count": 1,
+      "max_age_days": 681,
+      "status": "หนี้สงสัยจะสูญ",
+      "recommendation": "เร่งติดตาม"
+    },
+    {
+      "customer": "C***5089",
+      "value": 696.0,
+      "count": 1,
+      "max_age_days": 154,
+      "status": "เคลียร์รับบิลเกิน 3 เดือน",
+      "recommendation": "เร่งเคลียร์"
+    },
+    {
+      "customer": "C***8888",
+      "value": 660.0,
+      "count": 1,
+      "max_age_days": 161,
+      "status": "เคลียร์รับบิลเกิน 3 เดือน",
+      "recommendation": "เร่งเคลียร์"
+    },
+    {
+      "customer": "C***5816",
+      "value": 636.0,
+      "count": 1,
+      "max_age_days": 140,
+      "status": "เคลียร์รับบิลเกิน 3 เดือน",
+      "recommendation": "เร่งเคลียร์"
+    },
+    {
+      "customer": "C***6156",
+      "value": 580.0,
+      "count": 2,
+      "max_age_days": 182,
+      "status": "เคลียร์รับบิลเกิน 3 เดือน",
+      "recommendation": "เร่งเคลียร์"
+    },
+    {
+      "customer": "C***3498",
+      "value": 575.0,
+      "count": 1,
+      "max_age_days": 185,
+      "status": "เคลียร์รับบิลเกิน 3 เดือน",
+      "recommendation": "เร่งเคลียร์"
+    },
+    {
+      "customer": "C***7499",
+      "value": 510.0,
+      "count": 1,
+      "max_age_days": 234,
+      "status": "เคลียร์รับบิลเกิน 3 เดือน",
+      "recommendation": "เร่งเคลียร์"
+    },
+    {
+      "customer": "C***5145",
+      "value": 464.0,
+      "count": 1,
+      "max_age_days": 165,
+      "status": "เคลียร์รับบิลเกิน 3 เดือน",
+      "recommendation": "เร่งเคลียร์"
+    },
+    {
+      "customer": "C***6096",
+      "value": 350.0,
+      "count": 1,
+      "max_age_days": 183,
+      "status": "เคลียร์รับบิลเกิน 3 เดือน",
+      "recommendation": "เร่งเคลียร์"
+    },
+    {
+      "customer": "C***2910",
+      "value": 348.0,
+      "count": 1,
+      "max_age_days": 152,
+      "status": "เคลียร์รับบิลเกิน 3 เดือน",
+      "recommendation": "เร่งเคลียร์"
+    },
+    {
+      "customer": "C***4207",
+      "value": 340.0,
+      "count": 2,
+      "max_age_days": 640,
+      "status": "หนี้สงสัยจะสูญ",
+      "recommendation": "เร่งติดตาม"
+    },
+    {
+      "customer": "C***0136",
+      "value": 334.0,
+      "count": 1,
+      "max_age_days": 671,
+      "status": "หนี้สงสัยจะสูญ",
+      "recommendation": "เร่งติดตาม"
+    },
+    {
+      "customer": "C***2554",
+      "value": 270.0,
+      "count": 2,
+      "max_age_days": 683,
+      "status": "หนี้สงสัยจะสูญ",
+      "recommendation": "เร่งติดตาม"
+    },
+    {
+      "customer": "C***6223",
+      "value": 220.0,
+      "count": 1,
+      "max_age_days": 162,
+      "status": "เคลียร์รับบิลเกิน 3 เดือน",
+      "recommendation": "เร่งเคลียร์"
+    }
+  ],
+  "notes": {
+    "age_basis": "อายุรายการคำนวณจาก Year/Month/Day ในไฟล์เครดิตจ่ายช้าถึงวันที่ประมวลผล ไม่ใช่ DSO หรือ Days Overdue",
+    "value_basis": "รายได้รวมใช้เป็นมูลค่ารายการที่ต้องติดตามตามไฟล์ต้นทาง ไม่เรียกว่า Outstanding A/R จนกว่าจะมี Due Date และยอดลูกหนี้คงค้างที่ยืนยันได้"
+  },
+  "errors": [],
+  "public_safe": true
+}

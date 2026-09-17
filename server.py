@@ -14,6 +14,7 @@ from functools import lru_cache
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import unquote
+from zoneinfo import ZoneInfo
 
 import pandas as pd
 import numpy as np
@@ -35,7 +36,7 @@ MAX_UPLOAD = 750 * 1024 * 1024
 MAX_ZIP_UNCOMPRESSED = 1_500 * 1024 * 1024
 MAX_ZIP_FILES = 500
 REGISTRY_PATH = DATA_DIR / "source_registry.json"
-PROCESSOR_VERSION = "wasted-cost-7"
+PROCESSOR_VERSION = "customer-credit-billing-1"
 
 CATEGORY_LABELS = {
     "prepared": "Prepared Dataset",
@@ -91,7 +92,7 @@ def classify_name(name: str) -> str:
         return "cm"
     if "pq" in n or "prepared" in n or "update-รวม" in n or "update_รวม" in n:
         return "prepared"
-    if "ลูกหนี้" in n or "รับชำระ" in n or "receivable" in n or "payment" in n:
+    if any(word in n for word in ("ลูกหนี้", "รับชำระ", "receivable", "payment", "เครดิต", "จ่ายช้า", "เร่งรัด", "บิลล่าช้า")):
         return "receivables"
     if "ความจุรถ" in n or "vehicle master" in n or "vehicle_master" in n:
         return "vehicle_master"
@@ -244,6 +245,235 @@ def customer_source():
         except (OSError, UnicodeDecodeError, csv.Error):
             continue
     return None
+
+
+CREDIT_DELAY_REQUIRED_COLUMNS = {
+    "Year", "Quarter", "Month", "Day", "Customer Code", "รายได้รวม", "สถานะบิล", "สถานะการชำระเงิน"
+}
+BILLING_DELAY_REQUIRED_COLUMNS = {
+    "Customer Code", "รายได้รวม", "สถานะบิล", "สถานะการชำระเงิน"
+}
+
+def _csv_fieldnames(path: Path):
+    try:
+        with path.open("r", encoding="utf-8-sig", newline="") as handle:
+            reader = csv.DictReader(handle)
+            return set(reader.fieldnames or [])
+    except (OSError, UnicodeDecodeError, csv.Error):
+        return set()
+
+def credit_billing_sources():
+    credit_path = None
+    billing_path = None
+    for path in sorted(INPUT_DIR.rglob("*.csv"), key=lambda p: str(p).lower()):
+        fields = _csv_fieldnames(path)
+        if not credit_path and CREDIT_DELAY_REQUIRED_COLUMNS.issubset(fields):
+            credit_path = path
+            continue
+        if not billing_path and BILLING_DELAY_REQUIRED_COLUMNS.issubset(fields) and not CREDIT_DELAY_REQUIRED_COLUMNS.issubset(fields):
+            billing_path = path
+    return credit_path, billing_path
+
+def _safe_number(value):
+    if value is None:
+        return None
+    text = str(value).strip().replace(",", "")
+    if not text:
+        return None
+    try:
+        number = float(text)
+        return number if math.isfinite(number) else None
+    except ValueError:
+        return None
+
+def _group_issue_rows(rows, key="สถานะบิล"):
+    groups = {}
+    for row in rows:
+        label = (row.get(key) or "ไม่ระบุ").strip() or "ไม่ระบุ"
+        bucket = groups.setdefault(label, {"label": label, "count": 0, "value": 0.0})
+        bucket["count"] += 1
+        bucket["value"] += float(row.get("_value") or 0)
+    return sorted(groups.values(), key=lambda x: (-x["value"], -x["count"], x["label"]))
+
+def _credit_record_date(row):
+    months = {
+        "january": 1, "february": 2, "march": 3, "april": 4, "may": 5, "june": 6,
+        "july": 7, "august": 8, "september": 9, "october": 10, "november": 11, "december": 12,
+    }
+    try:
+        year = int(float(str(row.get("Year") or "").strip()))
+        day = int(float(str(row.get("Day") or "").strip()))
+        month_raw = str(row.get("Month") or "").strip()
+        month = months.get(month_raw.lower())
+        if month is None:
+            month = int(float(month_raw))
+        return datetime(year, month, day).date()
+    except (ValueError, TypeError):
+        return None
+
+def _priority_status(statuses):
+    statuses = [s for s in statuses if s]
+    if not statuses:
+        return "ไม่ระบุ"
+    ordered = sorted(statuses, key=lambda s: (
+        0 if "หนี้สงสัยจะสูญ" in s else
+        1 if "เกิน 3 เดือน" in s else
+        2 if "เร่งรัด" in s else
+        3, s
+    ))
+    return ordered[0]
+
+def _credit_recommendation(status):
+    if "หนี้สงสัยจะสูญ" in status:
+        return "เร่งติดตาม"
+    if "เกิน 3 เดือน" in status:
+        return "เร่งเคลียร์"
+    if "เร่งรัด" in status:
+        return "ติดตามสถานะ"
+    return "Review"
+
+def _masked_customer_code(value):
+    text = str(value or "")
+    if len(text) <= 4:
+        return "***"
+    return f"{text[:1]}***{text[-4:]}"
+
+def _masked_credit_summary(summary):
+    if not isinstance(summary, dict):
+        return summary
+    clean = json.loads(json.dumps(summary, ensure_ascii=False))
+    for row in clean.get("priority_customers", []):
+        row["customer"] = _masked_customer_code(row.get("customer"))
+    clean["public_safe"] = True
+    return clean
+
+def _public_safe_credit_summary(summary):
+    # Render is currently a public read-only deployment. Mask customer codes
+    # in the API response so the risk dashboard can be demonstrated without
+    # exposing the full internal customer identifier. Localhost keeps full codes.
+    return _masked_credit_summary(summary) if READ_ONLY_DEPLOY else summary
+
+def build_credit_billing_summary():
+    credit_path, billing_path = credit_billing_sources()
+    errors = []
+    today = datetime.now(ZoneInfo("Asia/Bangkok")).date()
+
+    credit_rows = []
+    credit_all_customers = set()
+    if credit_path:
+        try:
+            with credit_path.open("r", encoding="utf-8-sig", newline="") as handle:
+                for source in csv.DictReader(handle):
+                    customer = (source.get("Customer Code") or "").strip()
+                    if customer:
+                        credit_all_customers.add(customer)
+                    value = _safe_number(source.get("รายได้รวม"))
+                    if (source.get("สถานะการชำระเงิน") or "").strip() != "ยังไม่ได้ชำระ":
+                        continue
+                    row = dict(source)
+                    row["_value"] = value or 0.0
+                    record_date = _credit_record_date(source)
+                    row["_record_date"] = record_date.isoformat() if record_date else None
+                    row["_age_days"] = (today - record_date).days if record_date else None
+                    credit_rows.append(row)
+        except Exception as exc:
+            errors.append(f"อ่านไฟล์เครดิตจ่ายช้าไม่สำเร็จ: {exc}")
+    else:
+        errors.append("ไม่พบไฟล์เครดิตจ่ายช้าตาม schema")
+
+    billing_rows = []
+    billing_all_customers = set()
+    if billing_path:
+        try:
+            with billing_path.open("r", encoding="utf-8-sig", newline="") as handle:
+                for source in csv.DictReader(handle):
+                    customer = (source.get("Customer Code") or "").strip()
+                    if customer:
+                        billing_all_customers.add(customer)
+                    value = _safe_number(source.get("รายได้รวม"))
+                    if (source.get("สถานะการชำระเงิน") or "").strip() != "ยังไม่ได้ชำระ":
+                        continue
+                    row = dict(source)
+                    row["_value"] = value or 0.0
+                    billing_rows.append(row)
+        except Exception as exc:
+            errors.append(f"อ่านไฟล์บิลล่าช้าไม่สำเร็จ: {exc}")
+    else:
+        errors.append("ไม่พบไฟล์บิลล่าช้าจากกระบวนการภายในตาม schema")
+
+    credit_customers = {r.get("Customer Code", "").strip() for r in credit_rows if r.get("Customer Code")}
+    billing_customers = {r.get("Customer Code", "").strip() for r in billing_rows if r.get("Customer Code")}
+    collection_value = sum(float(r.get("_value") or 0) for r in credit_rows)
+    billing_value = sum(float(r.get("_value") or 0) for r in billing_rows)
+    bad_debt_rows = [r for r in credit_rows if "หนี้สงสัยจะสูญ" in (r.get("สถานะบิล") or "")]
+    bad_debt_value = sum(float(r.get("_value") or 0) for r in bad_debt_rows)
+
+    age_defs = [
+        ("<=90", "≤ 90 วัน", lambda a: a is not None and a <= 90),
+        ("91-180", "91–180 วัน", lambda a: a is not None and 91 <= a <= 180),
+        ("181-365", "181–365 วัน", lambda a: a is not None and 181 <= a <= 365),
+        (">365", "> 365 วัน", lambda a: a is not None and a > 365),
+    ]
+    age_buckets = []
+    for key, label, fn in age_defs:
+        selected = [r for r in credit_rows if fn(r.get("_age_days"))]
+        age_buckets.append({
+            "key": key, "label": label, "count": len(selected),
+            "value": sum(float(r.get("_value") or 0) for r in selected),
+        })
+
+    by_customer = {}
+    for row in credit_rows:
+        customer = (row.get("Customer Code") or "").strip() or "ไม่ระบุ"
+        item = by_customer.setdefault(customer, {
+            "customer": customer, "value": 0.0, "count": 0, "statuses": [], "max_age_days": None
+        })
+        item["value"] += float(row.get("_value") or 0)
+        item["count"] += 1
+        if row.get("สถานะบิล"):
+            item["statuses"].append((row.get("สถานะบิล") or "").strip())
+        age = row.get("_age_days")
+        if age is not None:
+            item["max_age_days"] = age if item["max_age_days"] is None else max(item["max_age_days"], age)
+    priority = []
+    for item in by_customer.values():
+        status = _priority_status(item.pop("statuses"))
+        item["status"] = status
+        item["recommendation"] = _credit_recommendation(status)
+        priority.append(item)
+    priority.sort(key=lambda x: (-x["value"], -(x["max_age_days"] or -1), x["customer"]))
+
+    return {
+        "ok": bool(credit_path or billing_path),
+        "generated_at": datetime.now(ZoneInfo("Asia/Bangkok")).isoformat(timespec="seconds"),
+        "as_of_date": today.isoformat(),
+        "sources": {
+            "credit_delay": str(credit_path.relative_to(INPUT_DIR)) if credit_path else None,
+            "billing_delay": str(billing_path.relative_to(INPUT_DIR)) if billing_path else None,
+        },
+        "totals": {
+            "collection_source_customers": len(credit_all_customers),
+            "collection_customers": len(credit_customers),
+            "collection_open_rows": len(credit_rows),
+            "collection_value": collection_value,
+            "bad_debt_rows": len(bad_debt_rows),
+            "bad_debt_value": bad_debt_value,
+            "bad_debt_share_pct": (bad_debt_value / collection_value * 100) if collection_value else None,
+            "billing_source_customers": len(billing_all_customers),
+            "billing_customers": len(billing_customers),
+            "billing_open_rows": len(billing_rows),
+            "billing_value": billing_value,
+        },
+        "collection_status": _group_issue_rows(credit_rows),
+        "billing_status": _group_issue_rows(billing_rows),
+        "age_buckets": age_buckets,
+        "priority_customers": priority[:25],
+        "notes": {
+            "age_basis": "อายุรายการคำนวณจาก Year/Month/Day ในไฟล์เครดิตจ่ายช้าถึงวันที่ประมวลผล ไม่ใช่ DSO หรือ Days Overdue",
+            "value_basis": "รายได้รวมใช้เป็นมูลค่ารายการที่ต้องติดตามตามไฟล์ต้นทาง ไม่เรียกว่า Outstanding A/R จนกว่าจะมี Due Date และยอดลูกหนี้คงค้างที่ยืนยันได้",
+        },
+        "errors": errors,
+    }
 
 # backward-compatible internal alias
 def pq_files():
@@ -1169,6 +1399,18 @@ def read_dashboard_cache():
     sig=current_signature()
     cached_sig=tuple(tuple(x) for x in data.get("source_signature",[]))
     data["cached"]=True
+    # Credit/Billing summary is intentionally stored separately so the public
+    # read-only deployment can use a compact aggregate without raw CSV files.
+    public_credit_cache = DATA_DIR / "credit_billing_public_summary.json"
+    private_credit_cache = DATA_DIR / "credit_billing_summary.json"
+    credit_cache = public_credit_cache if READ_ONLY_DEPLOY and public_credit_cache.exists() else private_credit_cache
+    if credit_cache.exists():
+        try:
+            data["credit_billing_summary"] = json.loads(credit_cache.read_text(encoding="utf-8"))
+        except Exception:
+            pass
+    if data.get("credit_billing_summary"):
+        data["credit_billing_summary"] = _public_safe_credit_summary(data["credit_billing_summary"])
     data["needs_process"]=(cached_sig != sig or data.get("processor_version") != PROCESSOR_VERSION)
     data["source_catalog"] = input_files()
     if data["needs_process"]:
@@ -1227,6 +1469,7 @@ def build_dashboard_data():
         except Exception as e:
             errors.append({"year":y,"file":str(p.relative_to(INPUT_DIR)),"error":str(e)})
     customer_summary = build_customer_summary()
+    credit_billing_summary = build_credit_billing_summary()
     trip_summaries = {}
     for year, path in trip_sources().items():
         summary = build_trip_summary(path)
@@ -1239,6 +1482,10 @@ def build_dashboard_data():
     trip_summary = trip_summaries[str(max(map(int, trip_summaries)))] if trip_summaries else build_trip_summary()
     customer_cache_path = DATA_DIR / "customer_summary.json"
     customer_cache_path.write_text(json.dumps(customer_summary, ensure_ascii=False, indent=2, allow_nan=False), encoding="utf-8")
+    credit_billing_cache_path = DATA_DIR / "credit_billing_summary.json"
+    credit_billing_cache_path.write_text(json.dumps(credit_billing_summary, ensure_ascii=False, indent=2, allow_nan=False), encoding="utf-8")
+    credit_billing_public_cache_path = DATA_DIR / "credit_billing_public_summary.json"
+    credit_billing_public_cache_path.write_text(json.dumps(_masked_credit_summary(credit_billing_summary), ensure_ascii=False, indent=2, allow_nan=False), encoding="utf-8")
     trip_cache_path = DATA_DIR / "trip_summary.json"
     trip_cache_path.write_text(json.dumps(trip_summary, ensure_ascii=False, indent=2, allow_nan=False), encoding="utf-8")
     # The executive dashboard only needs aggregates. Keep candidate-level rows
@@ -1257,6 +1504,7 @@ def build_dashboard_data():
         "source_catalog": input_files(),
         "years": years,
         "customer_summary": customer_summary,
+        "credit_billing_summary": credit_billing_summary,
         "trip_summary": trip_dashboard,
         "trip_summaries": trip_summaries,
         "available_years": [x["year"] for x in years],
