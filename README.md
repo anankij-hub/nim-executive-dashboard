@@ -65,6 +65,8 @@ Start: python server.py
 
 The deployment sets `HOST=0.0.0.0`, uses Render's `PORT`, and enables `READ_ONLY_DEPLOY=1`. Public users can read the prepared dashboard but cannot upload files or trigger data processing. Keep source Excel/CSV files out of the repository; the processed JSON in `data/` must be reviewed for sensitive customer information before publishing.
 
+Current deployment cache includes financial and trip summaries for years 2567, 2568, and 2569.
+
 For local development, leave `READ_ONLY_DEPLOY` unset so the upload and processing controls continue to work.
 
 
