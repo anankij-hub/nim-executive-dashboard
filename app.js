@@ -32,9 +32,9 @@ function lineChart(rows) {
   const cost = xs.map((x, i) => `${x},${y(rows[i].all_costs)}`).join(' ');
   const grids = [0, .25, .5, .75, 1].map(q => {
     const v = max * q;
-    return `<line x1="${p}" y1="${y(v)}" x2="${w - p}" y2="${y(v)}" stroke="#e8eef5"/><text x="1" y="${y(v) + 3}" font-size="8" fill="#7d8ba0">${fmt(v / 1e6, 0)}M</text>`;
+    return `<line x1="${p}" y1="${y(v)}" x2="${w - p}" y2="${y(v)}" stroke="#e8eef5"/><text x="1" y="${y(v) + 3}" font-size="10.5" fill="#7d8ba0">${fmt(v / 1e6, 0)}M</text>`;
   }).join('');
-  const labels = xs.map((x, i) => `<text x="${x}" y="${h - 7}" text-anchor="middle" font-size="8" fill="#7d8ba0">${esc(rows[i].month)}</text>`).join('');
+  const labels = xs.map((x, i) => `<text x="${x}" y="${h - 7}" text-anchor="middle" font-size="10.5" fill="#7d8ba0">${esc(rows[i].month)}</text>`).join('');
   return `<svg viewBox="0 0 ${w} ${h}" width="100%" height="100%">${grids}<polyline fill="none" stroke="#1466d8" stroke-width="3" points="${rev}"/><polyline fill="none" stroke="#ef4d57" stroke-width="3" points="${cost}"/>${labels}</svg>`;
 }
 
@@ -817,7 +817,7 @@ function customerPage() {
   if (!summary?.ok) return `<div class="panel"><div class="panel-title">Customer Profitability ยังไม่พร้อมใช้งาน</div><p>${esc(summary?.errors?.join(' · ') || 'ไม่พบข้อมูลลูกค้าที่ผ่าน schema')}</p></div>`;
   const t = summary.totals || {};
   const queueRows = customerQueueRows();
-  return `<div class="customer-page-intro"><div><div class="eyebrow">วิเคราะห์เศรษฐศาสตร์ลูกค้า</div><h2>กำไรลูกค้าและลำดับความสำคัญในการบริหาร</h2><p>วิเคราะห์ความสามารถในการทำกำไรและคัดเลือกลูกค้าที่ผู้บริหารควรดำเนินการก่อน</p></div><span class="customer-source-badge">${esc(summary.source)} · ลูกค้า ${fmt(summary.row_count,0)} ราย</span></div>
+  return `<div class="customer-page-intro customer-page-intro-clean"><div><h2>กำไรลูกค้าและลำดับความสำคัญในการบริหาร</h2></div><span class="customer-source-badge">${esc(summary.source)} · ลูกค้า ${fmt(summary.row_count,0)} ราย</span></div>
   <div class="customer-kpis">${customerKpi('จำนวนลูกค้าทั้งหมด', fmt(t.customer_count,0), 'จากข้อมูลลูกค้ารายคน', '◎','blue')}${customerKpi('รายได้รวม', customerMoney(t.revenue), 'รวมลูกค้าทั้งหมด', '฿','blue')}${customerKpi('ต้นทุนที่จัดสรร', customerMoney(t.allocated_cost), 'ต้นทุนตามข้อมูลลูกค้า', '▣','amber')}${customerKpi('Contribution รวม', customerMoney(t.contribution), 'รายได้ - ต้นทุนจัดสรร', '▲','green')}${customerKpi('Margin รวม', customerPct(t.margin_pct), 'Contribution ÷ รายได้', '%','purple')}${customerKpi('ลูกค้า Contribution ติดลบ', fmt(t.loss_making_count,0), 'เข้าสู่คิวบริหาร', '▼','coral')}${customerKpi('ส่วนต่างติดลบ (Profit Leakage)', customerMoney(t.profit_leakage), 'รวมเฉพาะลูกค้าที่ขาดทุน', '⚠','coral')}${customerKpi('รายได้ที่มีความเสี่ยง', customerMoney(t.revenue_at_risk), 'รายได้ของลูกค้าที่ขาดทุน', '◌','amber')}</div>
   <div class="grid customer-analysis-grid"><div class="panel"><div class="panel-title">ลูกค้าที่สร้าง Contribution สูงสุด</div><div class="panel-sub">10 อันดับแรก เฉพาะลูกค้าที่ Contribution เป็นบวก</div>${customerBars(summary.top_contributors, 'contribution', 'Contribution')}</div><div class="panel"><div class="panel-title">ลูกค้าที่มีส่วนต่างติดลบสูงสุด</div><div class="panel-sub">10 อันดับแรก เรียงตามขนาด Profit Leakage</div>${customerBars(summary.largest_leakage, 'profit_leakage', 'Profit Leakage')}</div></div>
   <div class="panel customer-matrix-panel"><div class="panel-head"><div><div class="panel-title">เมทริกซ์กำไรลูกค้า</div><div class="panel-sub">แกน X = รายได้ · แกน Y = Margin % · เส้นแบ่งรายได้ใช้ค่ามัธยฐาน ${customerMoney(summary.thresholds?.matrix_revenue_median)} · จุดคุ้มทุน = 0%</div></div></div><div class="panel-sub">กดจุดเพื่อดูรายละเอียดลูกค้า · กดการ์ดกลุ่มด้านล่างเพื่อดูรายชื่อ</div>${customerMatrixSVG(summary)}</div>
@@ -1008,7 +1008,7 @@ function fleetUtilizationPage(y, operationsOnly = false) {
 }
 
 function customerCreditPage() {
-  return `<div class="customer-tabs"><button class="customer-tab active" type="button">Profitability</button></div>${customerPage()}`;
+  return customerPage();
 }
 
 function managementActionPage() {
@@ -1038,13 +1038,107 @@ function cmTable(rows, key, label) {
   return `<div class="route-diagnostic-wrap"><table class="simple-table"><thead><tr><th>${label}</th><th>รายการ</th><th>รายได้</th><th>ต้นทุนผันแปร</th><th>Contribution Margin</th><th>CM %</th>${perTrip ? '<th>รายได้/เที่ยว (บาท)</th><th>ต้นทุนผันแปร/เที่ยว (บาท)</th><th>CM/เที่ยว (บาท)</th>' : ''}</tr></thead><tbody>${rows.map(r => `<tr><td>${esc(r[key])}</td><td>${fmt(r.trip_count,0)}</td><td>${customerMoney(r.revenue)}</td><td>${customerMoney(r.variable_cost)}</td><td>${customerMoney(r.contribution)}</td><td>${customerPct(r.margin_pct)}</td>${perTrip ? `<td>${tripMoney(r.trip_count ? r.revenue/r.trip_count : null)}</td><td>${tripMoney(r.trip_count ? r.variable_cost/r.trip_count : null)}</td><td>${tripMoney(r.trip_count ? r.contribution/r.trip_count : null)}</td>` : ''}</tr>`).join('')}</tbody></table></div>`;
 }
 
+
+function overviewComparableYoY(y) {
+  const years = state.data?.years || [];
+  const prev = years.find(item => Number(item.year) === Number(y.year) - 1);
+  const currentRows = y.overview?.monthly || [];
+  const previousRows = prev?.overview?.monthly || [];
+  if (!prev || !currentRows.length || !previousRows.length) return null;
+  const monthNum = value => String(value || '').split('-').pop();
+  const currentByMonth = new Map(currentRows.map(row => [monthNum(row.month), row]));
+  const previousByMonth = new Map(previousRows.map(row => [monthNum(row.month), row]));
+  const overlap = [...currentByMonth.keys()].filter(month => previousByMonth.has(month));
+  if (!overlap.length) return null;
+  const currentRevenue = overlap.reduce((sum, month) => sum + Number(currentByMonth.get(month)?.revenue || 0), 0);
+  const previousRevenue = overlap.reduce((sum, month) => sum + Number(previousByMonth.get(month)?.revenue || 0), 0);
+  if (!previousRevenue) return null;
+  return {
+    pct: (currentRevenue - previousRevenue) / previousRevenue * 100,
+    months: overlap.length,
+    currentRevenue,
+    previousRevenue,
+    previousYear: prev.year
+  };
+}
+
+function overviewKpiCard(label, value, helper, icon, tone = 'blue', meta = '') {
+  return `<div class="overview-kpi ${tone}"><div class="overview-kpi-top"><span class="overview-kpi-icon">${icon}</span><span>${esc(label)}</span></div><strong>${value}</strong><small>${helper || '&nbsp;'}</small>${meta ? `<div class="overview-kpi-meta">${meta}</div>` : ''}</div>`;
+}
+
+function overviewPerformanceChart(rows) {
+  if (!rows?.length) return '<div class="empty-state">ไม่มีข้อมูลรายเดือน</div>';
+  const w = 760, h = 176, pL = 34, pR = 12, pT = 12, pB = 27;
+  const vals = rows.flatMap(r => [Number(r.revenue || 0), Number(r.variable_cost ?? r.all_costs ?? 0), Number(r.contribution ?? r.operating_surplus ?? 0)]);
+  const max = Math.max(...vals, 1) * 1.08;
+  const xs = rows.map((_, i) => pL + i * ((w - pL - pR) / Math.max(rows.length - 1, 1)));
+  const y = v => h - pB - (Number(v || 0) / max) * (h - pT - pB);
+  const points = key => xs.map((x, i) => `${x},${y(rows[i][key] ?? (key === 'variable_cost' ? rows[i].all_costs : key === 'contribution' ? rows[i].operating_surplus : 0))}`).join(' ');
+  const grids = [0, .5, 1].map(q => { const v = max * q; return `<line x1="${pL}" y1="${y(v)}" x2="${w-pR}" y2="${y(v)}" stroke="#e6edf6"/><text x="2" y="${y(v)+3}" font-size="10.5" fill="#8293aa">${fmt(v/1e6,0)}M</text>`; }).join('');
+  const labels = xs.map((x, i) => `<text x="${x}" y="${h-7}" text-anchor="middle" font-size="10.5" fill="#8293aa">${esc(String(rows[i].month || '').slice(5))}</text>`).join('');
+  return `<div class="overview-chart"><svg viewBox="0 0 ${w} ${h}" role="img" aria-label="แนวโน้มรายได้ ต้นทุนผันแปร และ Contribution Margin รายเดือน">${grids}<polyline fill="none" stroke="#2269d8" stroke-width="3" points="${points('revenue')}"/><polyline fill="none" stroke="#ef6a68" stroke-width="3" points="${points('variable_cost')}"/><polyline fill="none" stroke="#20a66f" stroke-width="3" points="${points('contribution')}"/>${labels}</svg></div>`;
+}
+
+function overviewManagementAttention(y, trips, customer) {
+  const tt = trips?.totals || {};
+  const ct = customer?.totals || {};
+  const items = [
+    { icon:'◔', tone:'amber', value: fmt(tt.below_70_records || 0, 0), label:'เที่ยว Load Factor ต่ำกว่า 70%', sub: tt.validated_trip_load_count ? `${fmt((tt.below_70_records || 0) / tt.validated_trip_load_count * 100,1)}% ของเที่ยวที่มี LF` : 'ยังไม่มีฐาน Load Factor', page:'fleet_util' },
+    { icon:'△', tone:'red', value: fmt(tt.below_break_even_records || 0, 0), label:'เที่ยวต่ำกว่าจุดคุ้มทุน', sub:'เฉพาะเที่ยวที่เทียบจุดคุ้มทุนได้', page:'trip_route' },
+    { icon:'!', tone:'orange', value: customerMoney(tt.wasted_cost_total), label:'ต้นทุนสูญเปล่าจาก Load Factor', sub: tt.wasted_cost_positive_trips ? `เกิดใน ${fmt(tt.wasted_cost_positive_trips,0)} เที่ยว` : 'ยังไม่มีข้อมูลที่ยืนยันได้', page:'fleet_util' },
+    { icon:'◎', tone:(ct.loss_making_count || 0) > 0 ? 'red' : 'green', value: fmt(ct.loss_making_count || 0,0), label:'ลูกค้า Contribution ติดลบ', sub: customer?.ok ? `จากลูกค้า ${fmt(ct.customer_count || 0,0)} รายในชุดปัจจุบัน` : 'ยังไม่มีข้อมูลลูกค้า', page:'customer_credit' }
+  ];
+  return `<div class="overview-attention-list">${items.map(item => `<button type="button" class="overview-attention ${item.tone}" data-page="${item.page}"><span class="overview-attention-icon">${item.icon}</span><span><b>${item.value}</b><strong>${esc(item.label)}</strong><small>${esc(item.sub)}</small></span><i>›</i></button>`).join('')}</div>`;
+}
+
+function overviewBusinessHealth(y, trips, customer) {
+  const t = y.overview?.totals || {};
+  const tt = trips?.totals || {};
+  const ct = customer?.totals || {};
+  const topRoute = [...(y.routes || [])].filter(r => Number.isFinite(Number(r.contribution))).sort((a,b) => Number(b.contribution)-Number(a.contribution))[0];
+  const customerLeakage = customer?.ok ? customerMoney(ct.profit_leakage) : 'N/A';
+  return `<div class="overview-health-grid">
+    <button type="button" class="overview-health-card green" data-page="trip_route"><span>Profitability</span><b>${customerMoney(t.contribution)}</b><small>CM Ratio ${customerPct(t.margin_pct)}</small><em>ดู Trip & Route →</em></button>
+    <button type="button" class="overview-health-card blue" data-page="fleet_util"><span>Fleet Efficiency</span><b>${tripPct(tt.avg_load_factor)}</b><small>Wasted Cost ${customerMoney(tt.wasted_cost_total)}</small><em>ดู Fleet →</em></button>
+    <button type="button" class="overview-health-card coral" data-page="customer_credit"><span>Customer Health</span><b>${customerLeakage}</b><small>${customer?.ok ? `${fmt(ct.loss_making_count || 0,0)} ราย Contribution ติดลบ` : 'ยังไม่มีชุดข้อมูลลูกค้า'}</small><em>ดู Customer →</em></button>
+    <button type="button" class="overview-health-card purple" data-page="trip_route"><span>Top Route Driver</span><b>${topRoute ? moneyM(topRoute.contribution) : 'N/A'}</b><small>${topRoute ? esc(topRoute.route) : 'ยังไม่มีข้อมูลเส้นทาง'}</small><em>ดูเส้นทาง →</em></button>
+  </div>`;
+}
+
+function cmExecutiveOverview(y) {
+  const t = y.overview?.totals || {};
+  const trips = selectedTripSummary();
+  const customer = customerData() || {};
+  const tt = trips?.totals || {};
+  const yoy = overviewComparableYoY(y);
+  const vcShare = t.revenue ? Number(t.variable_cost || 0) / Number(t.revenue) * 100 : null;
+  const periodText = y.period?.start && y.period?.end ? `${y.period.start} → ${y.period.end}` : 'ช่วงข้อมูลตามชุดปัจจุบัน';
+  const revenueMeta = `<span class="${yoy && yoy.pct >= 0 ? 'good' : yoy ? 'bad' : 'muted'}">YoY ${yoy ? `${yoy.pct >= 0 ? '+' : ''}${fmt(yoy.pct,1)}%` : 'N/A'}</span><span class="muted">Budget N/A</span>`;
+  return `<div class="overview-executive">
+    <div class="overview-intro"><div><div class="eyebrow">EXECUTIVE OVERVIEW</div><h2>ภาพรวมผลการดำเนินงาน</h2></div><div class="overview-period"><b>ปี ${esc(y.year)}</b><span>${esc(periodText)}</span></div></div>
+    <div class="overview-kpi-grid">
+      ${overviewKpiCard('รายได้รวม', customerMoney(t.revenue), yoy ? `เทียบช่วงเดือนเดียวกัน ${yoy.previousYear}` : 'YoY ยังเทียบไม่ได้จากช่วงข้อมูลที่มี', '฿', 'blue', revenueMeta)}
+      ${overviewKpiCard('ต้นทุนผันแปร', customerMoney(t.variable_cost), vcShare === null ? 'สัดส่วนต่อรายได้ N/A' : `${fmt(vcShare,1)}% ของรายได้`, '▣', 'coral')}
+      ${overviewKpiCard('Contribution Margin', customerMoney(t.contribution), 'รายได้ − ต้นทุนผันแปร', '▲', 'green')}
+      ${overviewKpiCard('CM Ratio', customerPct(t.margin_pct), 'Contribution Margin ÷ Revenue', '%', 'purple')}
+      ${overviewKpiCard('Load Factor เฉลี่ย', tripPct(tt.avg_load_factor), `${fmt(tt.below_70_records || 0,0)} เที่ยวต่ำกว่า 70%`, '◔', 'indigo')}
+      ${overviewKpiCard('ต้นทุนสูญเปล่า', customerMoney(tt.wasted_cost_total), tt.wasted_cost_valid_trips ? `${customerPct(tt.wasted_cost_positive_pct)} ของเที่ยวที่มีข้อมูลเกิดต้นทุนสูญเปล่า` : 'ยังไม่มีข้อมูลที่ยืนยันได้', '!', 'amber')}
+    </div>
+    <div class="overview-main-grid">
+      <section class="overview-panel overview-performance"><div class="overview-panel-head"><div><h3>Monthly Performance</h3><p>รายได้ ต้นทุนผันแปร และ Contribution Margin</p></div><div class="overview-legend"><span class="revenue">รายได้</span><span class="cost">ต้นทุนผันแปร</span><span class="cm">CM</span></div></div>${overviewPerformanceChart(y.overview?.monthly || [])}</section>
+      <section class="overview-panel"><div class="overview-panel-head"><div><h3>Management Attention</h3><p>ประเด็นที่ควรเปิดดูต่อจากข้อมูลปัจจุบัน</p></div></div>${overviewManagementAttention(y,trips,customer)}</section>
+    </div>
+    ${overviewBusinessHealth(y,trips,customer)}
+  </div>`;
+}
+
 function cmPage(y) {
   const t = y.overview.totals;
   const notice = cmNotice(y);
   const trips = selectedTripSummary();
   const loadSummary = trips.ok ? panel('Load Factor · ข้อมูลเที่ยวปี ' + y.year, esc(trips.source), `<div class="kpi-grid">${kpi('Load Factor เฉลี่ย', tripPct(trips.totals?.avg_load_factor), 'เฉพาะเที่ยวที่ผ่าน validation')}${kpi('เที่ยวที่มี Load Factor ใช้ได้', fmt(trips.data_quality?.validated_candidate_trip_loads, 0))}</div>`) : '';
   const kpis = `<div class="kpi-grid">${kpi('รายได้', customerMoney(t.revenue), 'รวมรายได้', '฿')}${kpi('ต้นทุนผันแปร', customerMoney(t.variable_cost), 'จากชีท CM', '▣')}${kpi('Contribution Margin', customerMoney(t.contribution), 'ส่วนต่างหลังต้นทุนผันแปร', '▲')}${kpi('CM %', customerPct(t.margin_pct), 'CM ÷ รายได้ × 100', '%')}</div>`;
-  if (state.page === 'overview') return notice + kpis + panel('รายได้และต้นทุนผันแปรรายเดือน', 'เฉพาะช่วงที่มีข้อมูล', lineChart(y.overview.monthly)) + panel('สรุปรายเดือน', 'หน่วยล้านบาท', cmTable(y.overview.monthly, 'month', 'เดือน')) + loadSummary;
+  if (state.page === 'overview') return cmExecutiveOverview(y);
 
   const fleet = state.page === 'fleet_util';
   const rows = fleet ? y.vehicles : y.routes;
@@ -1445,6 +1539,8 @@ function render() {
   document.body?.classList.toggle('route-portfolio-view', state.page === 'trip_route');
   document.body?.classList.toggle('fleet-executive-view', state.page === 'fleet_util');
   document.body?.classList.toggle('scenario-executive-view', state.page === 'action_scenario');
+  document.body?.classList.toggle('customer-analysis-view', state.page === 'customer_credit');
+  document.body?.classList.toggle('executive-overview-view', state.page === 'overview');
   if (state.page === 'action_scenario') {
     $('pageTitle').textContent = 'NIM Executive Analytics · Management Action & Scenario';
     if ($('routeHeaderControls')) $('routeHeaderControls').innerHTML = '';
@@ -1460,7 +1556,7 @@ function render() {
   }
   const y = current();
   if (!y) return;
-  const title = { overview: 'Executive Overview', trip_route: 'Trip & Route Profitability', fleet_util: 'Fleet Utilization & Load Efficiency', customer_credit: 'Customer Profitability & Credit Risk', action_scenario: 'Management Action & Scenario', sources: 'Data / Settings' };
+  const title = { overview: 'Executive Overview', trip_route: 'Trip & Route Profitability', fleet_util: 'Fleet Utilization & Load Efficiency', customer_credit: 'Customer Analysis', action_scenario: 'Management Action & Scenario', sources: 'Data / Settings' };
   $('pageTitle').textContent = ['trip_route','fleet_util'].includes(state.page) ? title[state.page] : `NIM Executive Analytics · ${title[state.page]}`;
   if ($('routeHeaderControls')) $('routeHeaderControls').innerHTML = state.page === 'trip_route' ? rpHeaderControls(y) : '';
   $('pageSubtitle').textContent = state.page === 'fleet_util' ? 'วิเคราะห์การใช้รถ น้ำหนักบรรทุก และประสิทธิภาพตามชนิดรถ เส้นทาง และทิศทาง' : state.page === 'trip_route' ? 'วิเคราะห์ความสามารถในการทำกำไรของแต่ละเส้นทาง' : state.page === 'customer_credit' ? 'วิเคราะห์กำไรลูกค้าและตรวจสอบความเสี่ยงด้านเครดิตเมื่อมีข้อมูลลูกหนี้' : state.page === 'action_scenario' ? 'สรุปประเด็นที่ผู้บริหารควรดำเนินการ และจำลองผลกระทบทางการเงินจากการปรับรายได้และต้นทุน' : 'ระบบวิเคราะห์ข้อมูลเพื่อสนับสนุนการตัดสินใจของผู้บริหาร';

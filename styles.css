@@ -174,3 +174,353 @@ body .main #routeHeaderControls select{height:35px;border:1px solid #d9e5f5;bord
 @media(max-width:900px){.sim-group-grid,.sim-method-grid,.sim-comparison-config{grid-template-columns:1fr}.sim-kpis{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:600px){.sim-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
+
+/* Executive Overview: compact one-screen management summary. */
+.executive-overview-view .content{padding:10px 16px 16px;background:linear-gradient(135deg,#f3f7fd,#fbfcfe)}
+.executive-overview-view .topbar{min-height:78px!important;padding:11px 20px!important}
+.executive-overview-view .topbar h1{font-size:22px}
+.overview-executive{color:#163b67;font-size:11px}
+.overview-intro{display:flex;justify-content:space-between;align-items:flex-end;gap:18px;margin-bottom:7px}
+.overview-intro .eyebrow{font-size:8px;letter-spacing:1.8px;font-weight:900;color:#1a6bd5}
+.overview-intro h2{margin:2px 0 0;font-size:19px;color:#102f58;line-height:1.2}
+.overview-intro p{margin:4px 0 0;color:#7588a3;font-size:10px}
+.overview-period{display:flex;flex-direction:column;align-items:flex-end;gap:2px;color:#46617f;white-space:nowrap}
+.overview-period b{font-size:12px}.overview-period span{font-size:9px;color:#8a99ad}
+.overview-coverage{display:flex;gap:7px;flex-wrap:wrap;margin:0 0 9px}
+.overview-coverage span{padding:5px 8px;border:1px solid #dce7f4;background:#fff;border-radius:16px;color:#71859f;font-size:8.5px;line-height:1.2}
+.overview-coverage b{color:#375a80}
+.overview-kpi-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin-bottom:9px}
+.overview-kpi{position:relative;min-width:0;min-height:95px;padding:10px 10px 8px;border:1px solid #d9e6f5;border-radius:12px;background:#fff;box-shadow:0 6px 18px rgba(42,72,109,.055);overflow:hidden}
+.overview-kpi:before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:#2f80ed}
+.overview-kpi.coral:before{background:#e86b67}.overview-kpi.green:before{background:#20a66f}.overview-kpi.purple:before{background:#7b61d6}.overview-kpi.indigo:before{background:#496fd3}.overview-kpi.amber:before{background:#e6a72f}
+.overview-kpi-top{display:flex;align-items:center;gap:6px;font-size:9px;font-weight:850;color:#496682;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.overview-kpi-icon{display:grid;place-items:center;width:23px;height:23px;border-radius:50%;background:#eaf3ff;color:#1b69cf;font-weight:900;flex:0 0 23px}
+.overview-kpi.coral .overview-kpi-icon{background:#fff0ee;color:#db5c59}.overview-kpi.green .overview-kpi-icon{background:#e8f8f1;color:#179664}.overview-kpi.purple .overview-kpi-icon{background:#f0ebff;color:#7456d3}.overview-kpi.indigo .overview-kpi-icon{background:#edf0ff;color:#526ad1}.overview-kpi.amber .overview-kpi-icon{background:#fff4d9;color:#bd8520}
+.overview-kpi>strong{display:block;margin-top:7px;font-size:22px;line-height:1.05;letter-spacing:-.5px;color:#0d315e;white-space:nowrap}
+.overview-kpi>small{display:block;margin-top:6px;color:#7790aa;font-size:8.5px;line-height:1.35;min-height:22px}
+.overview-kpi-meta{display:flex;gap:5px;flex-wrap:wrap;margin-top:4px;font-size:8px}.overview-kpi-meta span{padding:2px 5px;border-radius:9px;background:#edf4fb;color:#6d829c}.overview-kpi-meta .good{background:#e7f7ef;color:#168f60}.overview-kpi-meta .bad{background:#fff0f0;color:#ce5559}.overview-kpi-meta .muted{background:#f2f4f7;color:#8b98a8}
+.overview-main-grid{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(310px,.8fr);gap:9px;margin-bottom:9px}
+.overview-panel{background:#fff;border:1px solid #dce6f2;border-radius:12px;padding:10px 12px;box-shadow:0 5px 16px rgba(42,72,109,.04);min-width:0}
+.overview-panel-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin-bottom:3px}.overview-panel-head h3{margin:0;font-size:13px;color:#163b67}.overview-panel-head p{margin:2px 0 0;font-size:8.5px;color:#8394aa}
+.overview-legend{display:flex;gap:10px;font-size:8px;color:#70839d;white-space:nowrap}.overview-legend span:before{content:'';display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:4px}.overview-legend .revenue:before{background:#2269d8}.overview-legend .cost:before{background:#ef6a68}.overview-legend .cm:before{background:#20a66f}
+.overview-chart{height:175px;margin-top:1px}.overview-chart svg{display:block;width:100%;height:100%}
+.overview-attention-list{display:flex;flex-direction:column;gap:5px;margin-top:5px}.overview-attention{display:grid;grid-template-columns:28px 1fr 10px;align-items:center;gap:8px;width:100%;border:1px solid #e5ebf3;background:#fbfdff;border-radius:9px;padding:6px 8px;text-align:left;color:#244a73;cursor:pointer}.overview-attention:hover{background:#f3f8ff}.overview-attention-icon{display:grid;place-items:center;width:25px;height:25px;border-radius:50%;background:#fff1ce;color:#b7811e;font-size:14px;font-weight:900}.overview-attention.red .overview-attention-icon{background:#ffe9ea;color:#d45157}.overview-attention.orange .overview-attention-icon{background:#fff0df;color:#d37b24}.overview-attention.green .overview-attention-icon{background:#e8f8f0;color:#1c9967}.overview-attention span:nth-child(2){min-width:0}.overview-attention b{display:inline-block;font-size:13px;margin-right:5px;color:#153e6b}.overview-attention strong{font-size:9px}.overview-attention small{display:block;font-size:7.8px;color:#8495aa;margin-top:1px}.overview-attention>i{font-style:normal;color:#6e88a7;font-size:15px}
+.overview-health-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.overview-health-card{position:relative;text-align:left;border:1px solid #dce6f2;border-radius:11px;background:#fff;padding:9px 10px;min-height:83px;color:#173d68;cursor:pointer}.overview-health-card:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(42,72,109,.07)}.overview-health-card:before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:11px 0 0 11px;background:#2f80ed}.overview-health-card.green:before{background:#20a66f}.overview-health-card.coral:before{background:#e86b67}.overview-health-card.purple:before{background:#7b61d6}.overview-health-card span{display:block;font-size:8.5px;font-weight:850;color:#607894}.overview-health-card b{display:block;margin-top:4px;font-size:17px;color:#173d68;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.overview-health-card small{display:block;margin-top:3px;font-size:8px;color:#8193a8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.overview-health-card em{display:block;margin-top:5px;font-size:8px;font-style:normal;color:#1d67c8;font-weight:800}
+@media(max-width:1180px){.overview-kpi-grid{grid-template-columns:repeat(3,1fr)}.overview-main-grid{grid-template-columns:1fr}.overview-health-grid{grid-template-columns:repeat(2,1fr)}.overview-chart{height:190px}}
+@media(max-width:700px){.overview-intro{align-items:flex-start;flex-direction:column}.overview-period{align-items:flex-start}.overview-kpi-grid,.overview-health-grid{grid-template-columns:repeat(2,1fr)}.overview-kpi>strong{font-size:18px}.overview-coverage{display:none}}
+
+
+/* Readability pass — slightly larger typography across the dashboard. */
+html,body{font-size:15px}
+.nav-item{font-size:15px;line-height:1.35}
+.brand-sub{font-size:10px}
+.topbar h1{font-size:25px}
+.topbar p{font-size:13px}
+body .main .topbar .top-actions select,
+body .main .topbar .top-actions .upload-btn{font-size:14px}
+body .main .topbar .update{font-size:12px}
+body .main .topbar .update b{font-size:13px}
+.panel-title{font-size:17px}
+.panel-sub{font-size:12px}
+.kpi-label{font-size:12px}
+.kpi-value{font-size:26px}
+.trend{font-size:12px}
+.legend{font-size:11px}
+.bar-row{font-size:12px}
+.loss-table,.simple-table{font-size:11.5px}
+.loss-table th,.simple-table th{font-size:10.5px}
+.section-title{font-size:19px}
+.page-note{font-size:13px}
+.pill{font-size:11px}
+
+/* Filters and detail tables: one readability step up without changing layout. */
+.route-filter-bar label>span,
+.fleet-filter-bar label>span,
+.matrix-filter-bar label>span{font-size:10.5px}
+.route-filter-bar select,.route-filter-bar input,
+.fleet-filter-bar select,.fleet-filter-bar input,
+.matrix-filter-bar select,.matrix-filter-bar input{font-size:12.5px}
+.route-summary span,.fleet-summary span{font-size:10.5px}
+.route-table td:first-child b{font-size:12px}
+.route-table td:first-child small{font-size:9.5px}
+.data-status{font-size:10px}
+.rp-details table{font-size:11px}
+.rp-details th{font-size:10px}
+.rp-table-footer,.rp-coverage{font-size:11px}
+.rp-back-overview{font-size:11px}
+.rp-filter-context{font-size:10px}
+.portfolio-guide{font-size:10px}
+.portfolio-guide b{font-size:11px}
+.portfolio-quadrant-head h3{font-size:12px}
+.portfolio-quadrant-head small{font-size:9px}
+.portfolio-route-list button,.portfolio-route-list button b{font-size:10px}
+
+/* Customer page. */
+.customer-kpi h3{font-size:10.5px}
+.customer-kpi strong{font-size:20px}
+.customer-kpi small{font-size:9.5px}
+.customer-drilldown-values span{font-size:13px}
+.customer-drilldown-values strong{font-size:17px}
+
+/* Fleet / wasted-cost labels. */
+.wc-insights>div{font-size:12px}
+.wc-rank-heading{font-size:12px}
+.wc-rank-row small{font-size:10px}
+.fv-status{font-size:10px}
+.fv-more{font-size:12px}
+
+/* Scenario page. */
+.sim-disclaimer{font-size:11px}
+.sim-group h3{font-size:13px}
+.sim-field span{font-size:11px}
+.sim-field-input input{font-size:13px}
+.sim-field-input em{font-size:11px}
+.sim-error{font-size:10px}
+.sim-method-card b{font-size:13px}
+.sim-method-card small{font-size:11px}
+.sim-method-rate span{font-size:10px}
+.sim-method-rate input{font-size:12px}
+.sim-lf-toggle{font-size:12px}
+.sim-btn{font-size:13px}
+.sim-comparison h3,.sim-interpretation-panel h3{font-size:15px}
+.sim-comparison-config label{font-size:11px}
+.sim-comparison-config input{font-size:12px}
+.sim-interpretation{font-size:12px}
+
+/* Executive Overview: remove the coverage strip and spend the freed space on readability. */
+.executive-overview-view .topbar h1{font-size:24px}
+.overview-executive{font-size:12px}
+.overview-intro{margin-bottom:9px}
+.overview-intro .eyebrow{font-size:9px}
+.overview-intro h2{font-size:21px}
+.overview-intro p{font-size:11.5px}
+.overview-period b{font-size:13px}
+.overview-period span{font-size:10px}
+.overview-coverage{display:none!important}
+.overview-kpi-top{font-size:10.5px}
+.overview-kpi>strong{font-size:24px}
+.overview-kpi>small{font-size:9.5px;min-height:24px}
+.overview-kpi-meta{font-size:9px}
+.overview-panel-head h3{font-size:14.5px}
+.overview-panel-head p{font-size:9.5px}
+.overview-legend{font-size:9px}
+.overview-chart{height:170px}
+.overview-attention b{font-size:14px}
+.overview-attention strong{font-size:10px}
+.overview-attention small{font-size:9px}
+.overview-health-card span{font-size:9.5px}
+.overview-health-card b{font-size:18px}
+.overview-health-card small,.overview-health-card em{font-size:9px}
+
+/* Readability pass 2 — larger type for presentation/laptop viewing. */
+html,body{font-size:16px}
+.nav-item{font-size:17px;line-height:1.35}
+.brand-sub{font-size:11px}
+.topbar h1{font-size:27px}
+.topbar p{font-size:14px}
+body .main .topbar .top-actions select,
+body .main .topbar .top-actions .upload-btn,
+.utility-btn{font-size:14.5px}
+body .main .topbar .update{font-size:13px}
+body .main .topbar .update b{font-size:14px}
+.panel-title{font-size:18px}
+.panel-sub{font-size:13px}
+.kpi-label{font-size:13px}
+.kpi-value{font-size:28px}
+.trend{font-size:13px}
+.legend{font-size:12px}
+.bar-row{font-size:13px}
+.loss-table,.simple-table{font-size:13px}
+.loss-table th,.simple-table th{font-size:12px}
+.section-title{font-size:20px}
+.page-note{font-size:14px}
+.pill{font-size:12px}
+
+/* Route / fleet / matrix filters and tables. */
+.route-filter-bar label>span,
+.fleet-filter-bar label>span,
+.matrix-filter-bar label>span{font-size:12px}
+.route-filter-bar select,.route-filter-bar input,
+.fleet-filter-bar select,.fleet-filter-bar input,
+.matrix-filter-bar select,.matrix-filter-bar input{font-size:14px}
+.route-summary span,.fleet-summary span{font-size:12px}
+.route-table td:first-child b{font-size:13.5px}
+.route-table td:first-child small{font-size:11px}
+.data-status{font-size:11.5px}
+.rp-dashboard{font-size:13px}
+.rp-panel h2{font-size:17px}
+.rp-muted,.rp-threshold,.rp-band-note{font-size:11.5px}
+.rp-panel-head select,.rp-panel-head>button{font-size:11.5px}
+.rp-rank-legend{font-size:11px}
+.rp-rank-row{font-size:12px}
+.rp-bar-pair b{font-size:10.5px}
+.rp-scatter text,.rp-scatter .rp-zone text{font-size:11px}
+.rp-histogram span{font-size:11px}.rp-histogram small{font-size:10px}
+.rp-direction-values>div{font-size:11.5px}.rp-direction-values small{font-size:10.5px}
+.rp-alert{font-size:11.5px}.rp-alert-symbol{font-size:16px}
+.rp-details table{font-size:12.5px}
+.rp-details th{font-size:11.5px}
+.rp-table-footer,.rp-coverage,.rp-back-overview{font-size:12px}
+.rp-filter-context,.portfolio-guide{font-size:11.5px}
+.portfolio-guide b,.portfolio-quadrant-head h3{font-size:12.5px}
+.portfolio-quadrant-head small{font-size:10.5px}
+.portfolio-route-list button,.portfolio-route-list button b{font-size:11.5px}
+
+/* Fleet page small labels. */
+.fleet-executive-kpis span{font-size:11px}
+.fleet-executive-kpis b{font-size:22px}
+.fleet-executive-kpis small{font-size:10px}
+.fleet-load-band>div:first-child b,.fleet-direction-row>div:first-child b{font-size:12px}
+.fleet-load-band>div:first-child span,.fleet-direction-row>div:first-child small{font-size:10px}
+.fleet-load-band strong,.fleet-direction-row strong{font-size:12px}
+.fleet-coverage-list span{font-size:11px}
+.fleet-coverage-note{font-size:10.5px}
+.wc-insights>div{font-size:13px}
+.wc-rank-heading{font-size:13px}
+.wc-rank-row small{font-size:11px}
+.fv-status{font-size:11px}
+.fv-more{font-size:13px}
+
+/* Customer page. */
+.customer-kpi h3{font-size:12px}
+.customer-kpi strong{font-size:23px}
+.customer-kpi small{font-size:11px}
+.customer-drilldown-values span{font-size:14px}
+.customer-drilldown-values strong{font-size:19px}
+
+/* Scenario page. */
+.sim-disclaimer{font-size:12px}
+.sim-group h3{font-size:14.5px}
+.sim-field span{font-size:12.5px}
+.sim-field-input input{font-size:14px}
+.sim-field-input em{font-size:12px}
+.sim-error{font-size:11px}
+.sim-method-card b{font-size:14px}
+.sim-method-card small{font-size:12px}
+.sim-method-rate span{font-size:11px}
+.sim-method-rate input{font-size:13px}
+.sim-lf-toggle{font-size:13px}
+.sim-btn{font-size:14px}
+.sim-comparison h3,.sim-interpretation-panel h3{font-size:16px}
+.sim-comparison-config label{font-size:12px}
+.sim-comparison-config input{font-size:13px}
+.sim-interpretation{font-size:13px}
+
+/* Executive Overview — presentation-size type while still fitting one screen. */
+.executive-overview-view .topbar h1{font-size:26px}
+.overview-executive{font-size:13px}
+.overview-intro{margin-bottom:10px}
+.overview-intro .eyebrow{font-size:10.5px}
+.overview-intro h2{font-size:23px}
+.overview-intro p{font-size:13px}
+.overview-period b{font-size:14px}
+.overview-period span{font-size:11px}
+.overview-kpi{min-height:108px;padding:12px 12px 10px}
+.overview-kpi-top{font-size:12px}
+.overview-kpi-icon{width:25px;height:25px;flex-basis:25px}
+.overview-kpi>strong{font-size:28px;margin-top:8px}
+.overview-kpi>small{font-size:11px;min-height:27px;line-height:1.35}
+.overview-kpi-meta{font-size:10.5px}
+.overview-panel{padding:12px 14px}
+.overview-panel-head h3{font-size:16.5px}
+.overview-panel-head p{font-size:11px}
+.overview-legend{font-size:10.5px}
+.overview-chart{height:185px}
+.overview-attention{padding:8px 9px;grid-template-columns:30px 1fr 12px}
+.overview-attention-icon{width:27px;height:27px;font-size:15px}
+.overview-attention b{font-size:15.5px}
+.overview-attention strong{font-size:11.5px}
+.overview-attention small{font-size:10.5px;line-height:1.25}
+.overview-health-card{min-height:92px;padding:11px 12px}
+.overview-health-card span{font-size:11px}
+.overview-health-card b{font-size:20px}
+.overview-health-card small,.overview-health-card em{font-size:10.5px}
+
+@media(max-width:1180px){
+  .topbar h1{font-size:24px}
+  .nav-item{font-size:16px}
+}
+
+
+/* Customer header cleanup — keep the enlarged typography without overflowing the topbar. */
+body .main .topbar>div:first-child{overflow:hidden}
+body .main .topbar h1{max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.customer-page-intro-clean{align-items:center;margin-top:0;margin-bottom:12px}
+.customer-page-intro-clean h2{margin:0;font-size:27px;line-height:1.25;color:#122d52}
+@media(max-width:1180px){.customer-page-intro-clean h2{font-size:24px}}
+@media(max-width:800px){.customer-page-intro-clean{align-items:flex-start;flex-direction:column}.customer-page-intro-clean h2{font-size:22px}}
+
+
+/* Final page-balance pass — restore Customer and Scenario typography to the pre-enlargement scale. */
+/* Keep the larger global typography for Overview/Fleet/Route, but scope the older compact scale to these two pages. */
+
+/* CUSTOMER — compact scale used before the global 1–2 step font enlargement. */
+.customer-analysis-view .topbar h1{font-size:20px}
+.customer-analysis-view .topbar p{font-size:12px}
+.customer-analysis-view .customer-page-intro-clean{margin-bottom:14px}
+.customer-analysis-view .customer-page-intro-clean h2{font-size:22px;line-height:1.25}
+.customer-analysis-view .customer-source-badge{font-size:10px}
+.customer-analysis-view .customer-kpi h3{font-size:9px}
+.customer-analysis-view .customer-kpi strong{font-size:18px}
+.customer-analysis-view .customer-kpi small{font-size:8px}
+.customer-analysis-view .panel-title{font-size:16px}
+.customer-analysis-view .panel-sub{font-size:11px}
+.customer-analysis-view .customer-bar-row b{font-size:11px}
+.customer-analysis-view .customer-bar-row small{font-size:9px}
+.customer-analysis-view .customer-bar-row strong{font-size:11px}
+.customer-analysis-view .simple-table,
+.customer-analysis-view .loss-table{font-size:10px}
+.customer-analysis-view .simple-table th,
+.customer-analysis-view .loss-table th{font-size:10px}
+.customer-analysis-view .customer-drilldown-values span{font-size:12px}
+.customer-analysis-view .customer-drilldown-values strong{font-size:16px}
+
+/* MANAGEMENT ACTION & SCENARIO — restore the original compact simulator scale. */
+.scenario-executive-view .topbar h1{font-size:20px}
+.scenario-executive-view .topbar p{font-size:12px}
+.scenario-executive .merged-page-intro{margin-bottom:12px}
+.scenario-executive .merged-page-intro h2{font-size:22px;line-height:1.2;margin:3px 0 4px}
+.scenario-executive .merged-page-intro p{font-size:12px}
+.scenario-executive .scenario-panel{padding:15px}
+.scenario-executive .scenario-section-head{margin-bottom:12px}
+.scenario-executive .scenario-section-head h2{font-size:16px}
+.scenario-executive .scenario-section-head p{font-size:10px}
+.scenario-executive .sim-disclaimer{font-size:10px;padding:9px 12px}
+.scenario-executive .sim-form{gap:14px;margin-bottom:16px}
+.scenario-executive .sim-group h3{font-size:12px;margin-bottom:9px}
+.scenario-executive .sim-field span{font-size:10px}
+.scenario-executive .sim-field-input input{font-size:12px}
+.scenario-executive .sim-field-input em{font-size:10px}
+.scenario-executive .sim-error{font-size:9px}
+.scenario-executive .sim-method-card{padding:12px}
+.scenario-executive .sim-method-card b{font-size:12px}
+.scenario-executive .sim-method-card small{font-size:10px}
+.scenario-executive .sim-method-rate span{font-size:9px}
+.scenario-executive .sim-method-rate input{font-size:11px}
+.scenario-executive .sim-lf-toggle{font-size:11px}
+.scenario-executive .sim-btn{font-size:12px;padding:10px 16px}
+.scenario-executive .sim-comparison h3,
+.scenario-executive .sim-interpretation-panel h3{font-size:14px}
+.scenario-executive .sim-comparison-config label{font-size:10px}
+.scenario-executive .sim-comparison-config input{font-size:11px}
+.scenario-executive .sim-interpretation{font-size:11px}
+.scenario-executive .kpi-label{font-size:11px}
+.scenario-executive .kpi-value{font-size:24px}
+.scenario-executive .trend{font-size:11px}
+.scenario-executive .simple-table{font-size:10px}
+.scenario-executive .simple-table th{font-size:10px}
+
+/* OVERVIEW — keep the current streamlined header (subtitle already removed in markup). */
+.executive-overview-view .overview-intro{margin-bottom:8px}
+.executive-overview-view .overview-intro h2{margin:2px 0 0;font-size:22px}
+.executive-overview-view .overview-intro .eyebrow{font-size:10px}
+
+@media(max-width:1180px){
+  .customer-analysis-view .topbar h1{font-size:20px}
+  .customer-analysis-view .customer-page-intro-clean h2{font-size:22px}
+  .scenario-executive-view .topbar h1{font-size:20px}
+  .scenario-executive .merged-page-intro h2{font-size:22px}
+}
+@media(max-width:800px){
+  .customer-analysis-view .customer-page-intro-clean h2{font-size:18px}
+}
