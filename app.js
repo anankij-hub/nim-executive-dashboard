@@ -1600,12 +1600,13 @@ async function loadData() {
     if (!state.year || !availableYears.includes(Number(state.year))) state.year = availableYears[0] || null;
     ys.value = state.year || '';
     $('lastUpdated').textContent = state.data.generated_at ? new Date(state.data.generated_at).toLocaleString('th-TH') : '—';
-    if (state.data.needs_process) {
-      if (IS_PUBLIC_DEPLOY) {
-        c.innerHTML = `<div class="panel"><div class="panel-title">Dashboard กำลังรอข้อมูลเวอร์ชันเผยแพร่</div><p>ข้อมูลบนเว็บไซต์นี้ได้รับการอัปเดตโดยผู้ดูแลระบบ กรุณาลองรีเฟรชอีกครั้งภายหลัง</p><button class="upload-btn" onclick="document.getElementById('reloadDataBtn').click()">↻ รีเฟรชข้อมูล</button></div>`;
-      } else {
-        c.innerHTML = `<div class="panel"><div class="panel-title">ต้องประมวลผลข้อมูลก่อน</div><p>${esc(state.data.message || 'กรุณากดประมวลผลข้อมูล')}</p><button class="upload-btn" onclick="document.getElementById('reloadDataBtn').click()">⚙ ประมวลผลข้อมูลตอนนี้</button></div>`;
-      }
+    const hasRenderableData = Boolean(state.data?.ok && Array.isArray(state.data?.years) && state.data.years.length);
+    if (state.data.needs_process && !IS_PUBLIC_DEPLOY) {
+      c.innerHTML = `<div class="panel"><div class="panel-title">ต้องประมวลผลข้อมูลก่อน</div><p>${esc(state.data.message || 'กรุณากดประมวลผลข้อมูล')}</p><button class="upload-btn" onclick="document.getElementById('reloadDataBtn').click()">⚙ ประมวลผลข้อมูลตอนนี้</button></div>`;
+      return;
+    }
+    if (state.data.needs_process && IS_PUBLIC_DEPLOY && !hasRenderableData) {
+      c.innerHTML = `<div class="panel"><div class="panel-title">Dashboard กำลังรอข้อมูลเวอร์ชันเผยแพร่</div><p>ยังไม่มีชุดข้อมูลที่พร้อมแสดงบนเว็บไซต์ กรุณาลองรีเฟรชอีกครั้งภายหลัง</p></div>`;
       return;
     }
     render();
