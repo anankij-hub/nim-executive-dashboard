@@ -764,7 +764,7 @@ function customerCreditBillingView() {
   const t = risk.totals || {};
   const badDebtSub = `${fmt(t.bad_debt_rows || 0,0)} รายการ${t.bad_debt_share_pct==null?'':` (${fmt(t.bad_debt_share_pct,1)}% ของมูลค่าที่ต้องติดตาม)`}`;
   return `<div class="credit-risk-kpis">
-    ${creditKpi('ลูกค้าที่มีรายการยังไม่ได้ชำระ', `${fmt(t.collection_customers || 0,0)} ราย`, `จากทั้งหมด ${fmt(t.collection_source_customers || 0,0)} ราย`, '◎', 'red')}
+    ${creditKpi('ลูกค้าที่ต้องเร่งรัดชำระ', `${fmt(t.collection_customers || 0,0)} ราย`, `จากทั้งหมด ${fmt(t.collection_source_customers || 0,0)} ราย`, '◎', 'red')}
     ${creditKpi('มูลค่ารายการที่ยังไม่ได้ชำระ', customerBaht(t.collection_value), `${fmt(t.collection_open_rows || 0,0)} รายการ`, '฿', 'red')}
     ${creditKpi('หนี้สงสัยจะสูญ', customerBaht(t.bad_debt_value), badDebtSub, '!', 'orange')}
     ${creditKpi('มูลค่าบิลล่าช้าจากกระบวนการภายใน', customerBaht(t.billing_value), `${fmt(t.billing_open_rows || 0,0)} รายการ | ${fmt(t.billing_customers || 0,0)} ลูกค้า`, '▤', 'blue')}
@@ -1079,8 +1079,356 @@ function customerCreditPage() {
   return customerPage();
 }
 
+
+const COST_PREDICTION_RATES = [{"vehicle":"รถ 10 ล้อ","year":2024,"trip":10513.9871612356,"km":14.5723545983364,"tonkm":4.77552504771594,"lf":0.46},{"vehicle":"รถ 10 ล้อช่วงยาว","year":2024,"trip":9734.21992724438,"km":13.8043165082338,"tonkm":3.35118375020194,"lf":0.54},{"vehicle":"รถ 10 ล้อตู้เย็น","year":2024,"trip":11441.342969736,"km":16.3262013081442,"tonkm":4.72051324691479,"lf":0.33},{"vehicle":"รถ 10 ล้อตู้แห้ง","year":2024,"trip":9828.15421229196,"km":14.0384959983008,"tonkm":4.86942875878954,"lf":0.53},{"vehicle":"รถ 12 ล้อคอก","year":2024,"trip":10545.4514516632,"km":15.8849360354506,"tonkm":5.13391801114361,"lf":0.55},{"vehicle":"รถ 12 ล้อตู้เย็น","year":2024,"trip":11584.1555033059,"km":16.3188701404824,"tonkm":3.4053007879215,"lf":0.39},{"vehicle":"รถ 6 ล้อ FC4","year":2024,"trip":5887.35913531133,"km":8.50711138892716,"tonkm":2.66701669554844,"lf":0.64},{"vehicle":"รถ 6 ล้อ(ตู้แห้ง)","year":2024,"trip":7436.64118211143,"km":10.8037209265063,"tonkm":3.54104121565299,"lf":0.59},{"vehicle":"รถ 6 ล้อเล็ก","year":2024,"trip":5992.86948634619,"km":8.49632243981591,"tonkm":3.85170964383369,"lf":0.62},{"vehicle":"รถ 6 ล้อใหญ่","year":2024,"trip":6310.01283150664,"km":9.15785289723744,"tonkm":2.88474242323435,"lf":0.71},{"vehicle":"รถเทรเล่อร์ (แม่)","year":2024,"trip":14883.1494693136,"km":21.2980787433041,"tonkm":3.89521608117057,"lf":0.46},{"vehicle":"รถปิกอัพ 3 ตัน","year":2024,"trip":7780.47148785104,"km":10.8062103997931,"tonkm":4.38915619333206,"lf":0.64},{"vehicle":"หางพ่วงคอก","year":2024,"trip":4779.43351476961,"km":7.17509413939411,"tonkm":2.03488773286698,"lf":0.4},{"vehicle":"หางพ่วงตู้เย็น","year":2024,"trip":3342.20586571137,"km":4.82219166039876,"tonkm":1.40347266768018,"lf":0.29},{"vehicle":"หางพ่วงตู้แห้ง","year":2024,"trip":2120.56529956207,"km":3.26307287575372,"tonkm":6.31326946849696,"lf":0.38},{"vehicle":"รถ 10 ล้อ","year":2025,"trip":11278.1853112186,"km":15.5831286968966,"tonkm":5.53378195835469,"lf":0.49},{"vehicle":"รถ 10 ล้อช่วงยาว","year":2025,"trip":9807.7134077423,"km":14.0038587983859,"tonkm":3.65514219638506,"lf":0.58},{"vehicle":"รถ 10 ล้อตู้เย็น","year":2025,"trip":11654.4849437057,"km":17.2671102754391,"tonkm":4.70927908324995,"lf":0.35},{"vehicle":"รถ 10 ล้อตู้แห้ง","year":2025,"trip":9721.52676285711,"km":14.2746104086763,"tonkm":3.60230495074078,"lf":0.56},{"vehicle":"รถ 12 ล้อคอก","year":2025,"trip":10279.2675033747,"km":15.6870731962971,"tonkm":3.92470804209548,"lf":0.65},{"vehicle":"รถ 12 ล้อตู้เย็น","year":2025,"trip":11454.2041240383,"km":16.3280966147586,"tonkm":3.09967811943012,"lf":0.41},{"vehicle":"รถ 6 ล้อ FC4","year":2025,"trip":5783.54109811864,"km":8.60711984968164,"tonkm":2.72607392443856,"lf":0.61},{"vehicle":"รถ 6 ล้อ(ตู้แห้ง)","year":2025,"trip":19751.3980958701,"km":29.6581733168494,"tonkm":15.458358756852,"lf":0.55},{"vehicle":"รถ 6 ล้อใหญ่","year":2025,"trip":6886.14637148658,"km":10.5365467434099,"tonkm":2.76294577156283,"lf":0.66},{"vehicle":"รถเทรเล่อร์ (แม่)","year":2025,"trip":15692.853941801,"km":22.2925119330904,"tonkm":4.35298598420016,"lf":0.45},{"vehicle":"รถปิกอัพ 3 ตัน","year":2025,"trip":7567.74339206268,"km":11.0147923301947,"tonkm":8.42261505467495,"lf":0.37},{"vehicle":"หางพ่วงคอก","year":2025,"trip":3595.2972992583,"km":5.38636687578237,"tonkm":1.37654486344429,"lf":0.46},{"vehicle":"หางพ่วงตู้เย็น","year":2025,"trip":2685.22081125499,"km":3.81930193148322,"tonkm":0.907402490025811,"lf":0.33},{"vehicle":"หางพ่วงตู้แห้ง","year":2025,"trip":2343.421616599,"km":3.61532059707601,"tonkm":1.37601594918801,"lf":0.42},{"vehicle":"รถ 10 ล้อ","year":2026,"trip":12136.5463323063,"km":16.189658639098,"tonkm":5.39267811034357,"lf":0.5},{"vehicle":"รถ 10 ล้อช่วงยาว","year":2026,"trip":10493.0226559924,"km":14.4567179166964,"tonkm":3.82042006134106,"lf":0.56},{"vehicle":"รถ 10 ล้อตู้เย็น","year":2026,"trip":13008.8013141558,"km":18.5751694508748,"tonkm":4.98364464046973,"lf":0.36},{"vehicle":"รถ 10 ล้อตู้แห้ง","year":2026,"trip":10351.7812037286,"km":14.5527702060278,"tonkm":3.83526336126767,"lf":0.56},{"vehicle":"รถ 12 ล้อคอก","year":2026,"trip":10835.8545791616,"km":17.9389122246938,"tonkm":5.38544080798118,"lf":0.54},{"vehicle":"รถ 12 ล้อตู้เย็น","year":2026,"trip":12750.3718035942,"km":18.0236880466266,"tonkm":3.26684574085918,"lf":0.41},{"vehicle":"รถ 6 ล้อ FC4","year":2026,"trip":6323.0206136506,"km":9.12721628890209,"tonkm":2.90973287394352,"lf":0.64},{"vehicle":"รถ 6 ล้อใหญ่","year":2026,"trip":7464.68365661324,"km":10.9110028618817,"tonkm":3.01182659609057,"lf":0.68},{"vehicle":"รถเทรเล่อร์ (แม่)","year":2026,"trip":16386.1969458259,"km":22.8474213949059,"tonkm":4.06777253251368,"lf":0.48},{"vehicle":"รถปิกอัพ 3 ตัน","year":2026,"trip":6710.07921122741,"km":9.28826612563423,"tonkm":3.88794372473973,"lf":0.39},{"vehicle":"รถปิ๊กอัพตู้เย็น","year":2026,"trip":5184.95570312508,"km":7.21021573387026,"tonkm":4.72286320475382,"lf":0.69},{"vehicle":"หางพ่วงคอก","year":2026,"trip":2704.00237423504,"km":4.194157282071,"tonkm":2.52417608496527,"lf":0.43},{"vehicle":"หางพ่วงตู้เย็น","year":2026,"trip":2643.93260792235,"km":3.74932686296591,"tonkm":0.763558225660707,"lf":0.33},{"vehicle":"หางพ่วงตู้แห้ง","year":2026,"trip":2926.25660758775,"km":4.45541778330259,"tonkm":1.68139142010085,"lf":0.46}];
+
+function managementState() {
+  if (!state.managementV2) {
+    const y = Number(current()?.year || 2569);
+    const gregorian = y > 2400 ? y - 543 : y;
+    let saved = null;
+    try { saved = JSON.parse(localStorage.getItem('nimManagementV2') || 'null'); } catch { saved = null; }
+    state.managementV2 = {
+      tab: 'advisor',
+      cmThreshold: 20,
+      lfThreshold: 70,
+      candidateRoute: '',
+      mainRoute: '',
+      vehicle: 'รถ 10 ล้อ',
+      costYear: COST_PREDICTION_RATES.some(r => r.year === gregorian) ? gregorian : 2026,
+      detourKm: 15,
+      transferPct: 80,
+      scenarioRoute: '',
+      scenarioDistance: 700,
+      scenarioPayload: 9,
+      scenarioTrips: 15,
+      scenarioMethod: 'trip',
+      scenarioLfEnabled: false,
+      scenarioLf: 65,
+      scenarioTargetMargin: 20,
+      ...(saved || {})
+    };
+  }
+  return state.managementV2;
+}
+
+function costYears() {
+  return [...new Set(COST_PREDICTION_RATES.map(r => Number(r.year)))].sort((a,b) => b-a);
+}
+
+function costVehicles(year) {
+  return [...new Set(COST_PREDICTION_RATES.filter(r => Number(r.year) === Number(year)).map(r => r.vehicle))];
+}
+
+function costRate(vehicle, year) {
+  return COST_PREDICTION_RATES.find(r => r.vehicle === vehicle && Number(r.year) === Number(year))
+    || COST_PREDICTION_RATES.find(r => Number(r.year) === Number(year))
+    || COST_PREDICTION_RATES.find(r => r.vehicle === vehicle)
+    || null;
+}
+
+function thaiYear(gregorian) { return Number(gregorian) + 543; }
+
+function routeParts(label) {
+  const raw = String(label || '').trim();
+  const parts = raw.split(/\s*(?:→|–|—|-)\s*/).filter(Boolean);
+  return { origin: parts[0] || raw, destination: parts[1] || '' };
+}
+
+function routeTrips(row) {
+  return Number(row?.trip_count ?? row?.operations?.trip_count ?? row?.operations?.candidate_trip_count ?? 0) || 0;
+}
+
+function routeLf(row) {
+  const op = row?.operations || {};
+  const v = op?.load_factor;
+  // A numeric 0 must not be treated as “no data”.  Accept 0 only when
+  // there are validated LF records behind it; otherwise missing/failed joins
+  // stay N/A and are excluded from Route Advisor screening.
+  const validated = Number(
+    op?.validated_load_records ??
+    op?.validated_trip_load_count ??
+    op?.load_factor_valid_records ??
+    0
+  );
+  if (!Number.isFinite(Number(v))) return null;
+  if (!Number.isFinite(validated) || validated <= 0) return null;
+  return Number(v);
+}
+
+function managementRouteRows() {
+  const y = current();
+  if (!y) return [];
+  return rpRows(y).filter(r => r?.route);
+}
+
+function advisorCandidates() {
+  const m = managementState();
+  return managementRouteRows()
+    .filter(r => Number.isFinite(Number(r.margin_pct)) && routeLf(r) !== null)
+    .filter(r => Number(r.margin_pct) < Number(m.cmThreshold) && routeLf(r) * 100 < Number(m.lfThreshold))
+    .sort((a,b) => {
+      const sa = Number(a.margin_pct || 0) + routeLf(a) * 100;
+      const sb = Number(b.margin_pct || 0) + routeLf(b) * 100;
+      return sa - sb;
+    });
+}
+
+function advisorMainOptions(candidate) {
+  const rows = managementRouteRows().filter(r => r.route !== candidate?.route && routeLf(r) !== null);
+  if (!candidate) return rows.slice(0, 20);
+  const cp = routeParts(candidate.route);
+  const cdir = candidate.direction;
+  return rows.sort((a,b) => {
+    const ap = routeParts(a.route), bp = routeParts(b.route);
+    const aSameOrigin = ap.origin === cp.origin ? 1 : 0;
+    const bSameOrigin = bp.origin === cp.origin ? 1 : 0;
+    const aSameDir = a.direction === cdir ? 1 : 0;
+    const bSameDir = b.direction === cdir ? 1 : 0;
+    const aScore = aSameOrigin*100 + aSameDir*20 + (routeLf(a)||0)*20 + Number(a.margin_pct||0);
+    const bScore = bSameOrigin*100 + bSameDir*20 + (routeLf(b)||0)*20 + Number(b.margin_pct||0);
+    return bScore - aScore;
+  }).slice(0, 30);
+}
+
+function advisorSelection() {
+  const m = managementState();
+  const candidates = advisorCandidates();
+  if (!candidates.length) return {candidates, candidate:null, mainOptions:[], main:null};
+  let candidate = candidates.find(r => r.route === m.candidateRoute) || candidates[0];
+  m.candidateRoute = candidate.route;
+  const mainOptions = advisorMainOptions(candidate);
+  let main = mainOptions.find(r => r.route === m.mainRoute) || mainOptions[0] || null;
+  m.mainRoute = main?.route || '';
+  const vehicles = costVehicles(m.costYear);
+  if (!vehicles.includes(m.vehicle)) m.vehicle = vehicles[0] || '';
+  return {candidates, candidate, mainOptions, main};
+}
+
+function consolidationResult(candidate, main) {
+  const m = managementState();
+  const rate = costRate(m.vehicle, m.costYear);
+  if (!candidate || !main || !rate) return {ok:false};
+  const cTrips = routeTrips(candidate);
+  const mTrips = routeTrips(main);
+  const cLf = routeLf(candidate);
+  const mLf = routeLf(main);
+  const transferPct = Math.max(0, Math.min(100, Number(m.transferPct)||0))/100;
+  if (!cTrips || !mTrips || cLf === null || mLf === null) return {ok:false};
+  const transferableLoad = cTrips * cLf * transferPct;
+  // Main-route capacity is capped at 100%.  The projected LF is calculated
+  // by the system from validated current LF + transferable load; executives
+  // no longer type a target LF manually.
+  const spareLoad = mTrips * Math.max(0, 1 - mLf);
+  const absorbedLoad = Math.max(0, Math.min(transferableLoad, spareLoad));
+  const removableTrips = Math.min(cTrips, Math.max(0, Math.floor(absorbedLoad / Math.max(cLf, .01))));
+  const postMainLf = mTrips > 0 ? Math.min(1.2, mLf + absorbedLoad/mTrips) : mLf;
+  const grossAvoidedCost = removableTrips * Number(rate.trip || 0);
+  const detourCost = removableTrips * Math.max(0, Number(m.detourKm)||0) * Number(rate.km || 0);
+  const netSaving = grossAvoidedCost - detourCost;
+  const contributionGain = netSaving;
+  const remainingTrips = Math.max(0, cTrips - removableTrips);
+  const feasible = removableTrips > 0 && postMainLf <= 1.00001;
+  const status = !feasible ? 'review' : netSaving > 0 ? 'good' : 'review';
+  return {
+    ok:true, rate, cTrips, mTrips, cLf, mLf, transferPct, transferableLoad, spareLoad,
+    absorbedLoad, removableTrips, postMainLf, grossAvoidedCost, detourCost, netSaving,
+    contributionGain, remainingTrips, status
+  };
+}
+
+function mgmtKpi(label, value, sub, tone='blue', icon='●') {
+  return `<div class="mgmt-kpi ${tone}"><span class="mgmt-kpi-icon">${icon}</span><div><small>${label}</small><strong>${value}</strong><em>${sub}</em></div></div>`;
+}
+
+function managementTabs() {
+  const m = managementState();
+  return `<div class="mgmt-tabs">
+    <button type="button" data-mgmt-tab="advisor" class="${m.tab==='advisor'?'active':''}">Route Consolidation Advisor</button>
+    <button type="button" data-mgmt-tab="scenario" class="${m.tab==='scenario'?'active':''}">Cost Scenario Simulator</button>
+  </div>`;
+}
+
+function advisorPage() {
+  const m = managementState();
+  const sel = advisorSelection();
+  const r = consolidationResult(sel.candidate, sel.main);
+  const totalPotential = sel.candidates.reduce((sum,row) => sum + routeTrips(row), 0);
+  const rate = r.rate || costRate(m.vehicle,m.costYear);
+  const selectedSaving = r.ok ? Math.max(0,r.netSaving) : 0;
+  const selectedGain = r.ok ? Math.max(0,r.contributionGain) : 0;
+  const candidateRows = sel.candidates.slice(0, 6);
+  const yearOptions = costYears().map(y => `<option value="${y}" ${Number(m.costYear)===y?'selected':''}>พ.ศ. ${thaiYear(y)} / ${y}</option>`).join('');
+  const vehicleOptions = costVehicles(m.costYear).map(v => `<option value="${esc(v)}" ${m.vehicle===v?'selected':''}>${esc(v)}</option>`).join('');
+  const mainOptions = sel.mainOptions.map(row => `<option value="${esc(row.route)}" ${m.mainRoute===row.route?'selected':''}>${esc(row.route)} · LF ${routeLf(row)===null?'N/A':fmt(routeLf(row)*100,1)+'%'} · CM ${Number.isFinite(Number(row.margin_pct))?fmt(row.margin_pct,1)+'%':'N/A'}</option>`).join('');
+  const c = sel.candidate, main = sel.main;
+  const currentCm = c && Number.isFinite(Number(c.margin_pct)) ? `${fmt(c.margin_pct,1)}%` : 'N/A';
+  const currentLf = c && routeLf(c)!==null ? `${fmt(routeLf(c)*100,1)}%` : 'N/A';
+  const mainLf = main && routeLf(main)!==null ? `${fmt(routeLf(main)*100,1)}%` : 'N/A';
+  return `<div class="mgmt-one-screen">
+    <div class="mgmt-kpi-row">
+      ${mgmtKpi('เส้นทางที่ควรตรวจสอบ', `${fmt(sel.candidates.length,0)} เส้นทาง`, `CM < ${fmt(m.cmThreshold,0)}% และ LF < ${fmt(m.lfThreshold,0)}%`, 'coral','◎')}
+      ${mgmtKpi('เที่ยวในกลุ่มที่เข้าข่าย', `${fmt(totalPotential,0)} เที่ยว`, 'ใช้เป็นฐานคัดกรอง ไม่ใช่จำนวนเที่ยวที่ยุบได้', 'blue','▰')}
+      ${mgmtKpi('ต้นทุนที่อาจประหยัดได้', r.ok ? bahtExact(Math.max(0,r.netSaving)) : 'N/A', 'จากคู่เส้นทางที่กำลังจำลอง', 'amber','฿')}
+      ${mgmtKpi('Contribution ที่อาจเพิ่มขึ้น', r.ok ? bahtExact(Math.max(0,r.contributionGain)) : 'N/A', 'เมื่อสมมติว่ารายได้เดิมยังคงอยู่', 'green','▥')}
+    </div>
+
+    <div class="advisor-main-grid">
+      <section class="mgmt-card advisor-list-card">
+        <div class="mgmt-card-head"><div><h3>คัดกรองเส้นทางที่ควรตรวจสอบ</h3><p>ใช้เฉพาะเส้นทางที่มี CM Ratio และ Load Factor ผ่าน validation; ข้อมูล LF ที่ไม่พร้อมจะแสดง N/A และไม่ถูกคัดกรอง</p></div></div>
+        <div class="advisor-filter-row">
+          <label>CM Ratio ต่ำกว่า <div><input data-mgmt="cmThreshold" type="number" min="0" max="100" step="1" value="${esc(m.cmThreshold)}"><span>%</span></div></label>
+          <label>Load Factor ต่ำกว่า <div><input data-mgmt="lfThreshold" type="number" min="0" max="100" step="1" value="${esc(m.lfThreshold)}"><span>%</span></div></label>
+        </div>
+        <div class="advisor-route-table">
+          <div class="advisor-route-head"><span>เส้นทาง</span><span>เที่ยว</span><span>LF</span><span>CM</span><span>สถานะ</span></div>
+          ${candidateRows.length ? candidateRows.map(row => `<button type="button" class="advisor-route-row ${m.candidateRoute===row.route?'selected':''}" data-advisor-route="${esc(row.route)}"><span title="${esc(row.route)}">${esc(row.route)}</span><b>${fmt(routeTrips(row),0)}</b><b class="bad">${fmt(routeLf(row)*100,1)}%</b><b class="bad">${fmt(row.margin_pct,1)}%</b><em>ตรวจสอบ</em></button>`).join('') : '<div class="scenario-empty">ไม่พบเส้นทางที่เข้าเกณฑ์ปัจจุบัน ลองเพิ่มค่า Threshold</div>'}
+        </div>
+      </section>
+
+      <section class="mgmt-card advisor-sim-card">
+        <div class="mgmt-card-head"><div><h3>จำลองการรวมเที่ยว</h3><p>เลือกเส้นทางหลักและสมมติฐานที่ต้องการทดสอบ</p></div></div>
+        ${c ? `<div class="advisor-selected-route"><span>เส้นทางที่ต้องการลดเที่ยว</span><strong>${esc(c.route)}</strong><small>CM ${currentCm} · LF ${currentLf} · ${fmt(routeTrips(c),0)} เที่ยว</small></div>` : ''}
+        <div class="advisor-form-grid">
+          <label class="span-2">รวมกับเส้นทางหลัก<select data-mgmt="mainRoute">${mainOptions || '<option value="">ไม่มีเส้นทางที่ใช้เปรียบเทียบ</option>'}</select></label>
+          <label>ชนิดรถ<select data-mgmt="vehicle">${vehicleOptions}</select></label>
+          <label>ปีต้นทุน<select data-mgmt="costYear">${yearOptions}</select></label>
+          <label class="span-2">วิธีต้นทุน<select disabled><option>ต้นทุนต่อเที่ยว (Cost / Trip)</option></select></label>
+        </div>
+        <div class="advisor-rate-strip">
+          <div><span>Cost / Trip</span><b>${rate?bahtExact(rate.trip):'N/A'}</b></div>
+          <div><span>Cost / KM</span><b>${rate?`฿ ${fmt(rate.km,2)}`:'N/A'}</b></div>
+          <div><span>Cost / Ton-KM</span><b>${rate?`฿ ${fmt(rate.tonkm,2)}`:'N/A'}</b></div>
+        </div>
+        <div class="advisor-assumption-row">
+          <label>ระยะทางอ้อมเพิ่ม<div><input data-mgmt="detourKm" type="number" min="0" step="1" value="${esc(m.detourKm)}"><span>กม.</span></div></label>
+          <label>สินค้าที่สามารถโอนไปรวมได้<div><input data-mgmt="transferPct" type="number" min="0" max="100" step="5" value="${esc(m.transferPct)}"><span>%</span></div></label>
+          <label>Projected LF หลังรวม<div class="advisor-auto-value"><b>${r.ok ? fmt(r.postMainLf*100,1)+'%' : 'N/A'}</b><span>ระบบคำนวณ</span></div></label>
+        </div>
+      </section>
+    </div>
+
+    <section class="mgmt-card advisor-result-card">
+      <div class="advisor-result-grid">
+        <div class="before-after">
+          <div class="mini-title">Before vs After</div>
+          <table><thead><tr><th>ตัวชี้วัด</th><th>ปัจจุบัน</th><th>หลังรวมเที่ยว</th></tr></thead><tbody>
+            <tr><td>เที่ยวของเส้นทางที่ตรวจสอบ</td><td>${r.ok?fmt(r.cTrips,0):'N/A'}</td><td>${r.ok?fmt(r.remainingTrips,0):'N/A'}</td></tr>
+            <tr><td>Load Factor เส้นทางหลัก</td><td>${mainLf}</td><td>${r.ok?fmt(r.postMainLf*100,1)+'%':'N/A'}</td></tr>
+            <tr><td>เที่ยวที่อาจลดได้</td><td>—</td><td class="good">${r.ok?fmt(r.removableTrips,0)+' เที่ยว':'N/A'}</td></tr>
+          </tbody></table>
+        </div>
+        <div class="advisor-result-metrics">
+          <div><span>เที่ยวที่อาจลดได้</span><b>${r.ok?fmt(r.removableTrips,0):'N/A'}</b><small>เที่ยว</small></div>
+          <div><span>ต้นทุนที่อาจหลีกเลี่ยงได้</span><b>${r.ok?bahtExact(Math.max(0,r.netSaving)):'N/A'}</b><small>หลังหักต้นทุนระยะทางอ้อม</small></div>
+          <div><span>Contribution ที่อาจเพิ่มขึ้น</span><b class="green">${r.ok?bahtExact(Math.max(0,r.contributionGain)):'N/A'}</b><small>ภายใต้สมมติฐานรายได้เดิม</small></div>
+        </div>
+        <div class="advisor-verdict ${r.ok && r.status==='good'?'good':'review'}">
+          <strong>${r.ok && r.status==='good' ? '✓ มีศักยภาพในการรวมเที่ยว' : '△ ควรตรวจสอบเพิ่มเติม'}</strong>
+          <p>${r.ok ? `เส้นทางหลัก ${esc(main?.route||'')} มี Projected LF หลังรวมประมาณ ${fmt(r.postMainLf*100,1)}% (คำนวณอัตโนมัติ)` : 'ข้อมูลเที่ยวหรือ Load Factor ไม่ครบสำหรับการจำลอง'}</p>
+          <small>เป็นเครื่องมือคัดกรองเพื่อการตัดสินใจ ต้องยืนยันตารางเวลา ระยะทางจริง ความจุรถ และเงื่อนไขลูกค้าก่อนดำเนินการ</small>
+        </div>
+      </div>
+    </section>
+  </div>`;
+}
+
+function scenario2Calc() {
+  const m = managementState();
+  const rate = costRate(m.vehicle,m.costYear);
+  const distance = Math.max(0,Number(m.scenarioDistance)||0);
+  const payload = Math.max(0,Number(m.scenarioPayload)||0);
+  const trips = Math.max(1,Number(m.scenarioTrips)||1);
+  const margin = Math.max(0,Math.min(99,Number(m.scenarioTargetMargin)||0));
+  const lf = Math.max(1,Math.min(100,Number(m.scenarioLf)||100))/100;
+  if (!rate) return {ok:false};
+  let base = Number(rate.trip)*trips;
+  if (m.scenarioMethod === 'km') base = distance*Number(rate.km)*trips;
+  if (m.scenarioMethod === 'tonkm') base = distance*payload*Number(rate.tonkm)*trips;
+  const cost = m.scenarioLfEnabled ? base/lf : base;
+  const revenue = cost/(1-margin/100);
+  const contribution = revenue-cost;
+  return {ok:true,rate,distance,payload,trips,margin,lf,base,cost,revenue,contribution,costPerTrip:cost/trips,totalDistance:distance*trips,totalTons:payload*trips};
+}
+
+function scenario2Page() {
+  const m = managementState();
+  const rows = managementRouteRows();
+  if (!m.scenarioRoute && rows.length) m.scenarioRoute = rows[0].route;
+  const vehicles = costVehicles(m.costYear);
+  if (!vehicles.includes(m.vehicle)) m.vehicle = vehicles[0] || '';
+  const rate = costRate(m.vehicle,m.costYear);
+  const r = scenario2Calc();
+  const years = costYears();
+  const routeOptions = rows.slice(0,160).map(row => `<option value="${esc(row.route)}" ${m.scenarioRoute===row.route?'selected':''}>${esc(row.route)}</option>`).join('');
+  const vehicleOptions = vehicles.map(v => `<option value="${esc(v)}" ${m.vehicle===v?'selected':''}>${esc(v)}</option>`).join('');
+  const yearOptions = years.map(y => `<option value="${y}" ${Number(m.costYear)===y?'selected':''}>พ.ศ. ${thaiYear(y)} / ${y}</option>`).join('');
+  return `<div class="mgmt-one-screen scenario2-screen">
+    <div class="mgmt-kpi-row">
+      ${mgmtKpi('ต้นทุนโดยประมาณ', r.ok?bahtExact(r.cost):'N/A', `${r.ok?fmt(r.trips,0):'—'} เที่ยว`, 'purple','▦')}
+      ${mgmtKpi('รายได้ที่ควรได้', r.ok?bahtExact(r.revenue):'N/A', `เพื่อให้ได้ Margin ${fmt(m.scenarioTargetMargin,0)}%`, 'green','▥')}
+      ${mgmtKpi('ปริมาณขนส่งทั้งหมด', r.ok?`${fmt(r.totalTons,0)} ตัน`:'N/A', `${fmt(m.scenarioPayload,1)} ตัน × ${fmt(m.scenarioTrips,0)} เที่ยว`, 'blue','%')}
+      ${mgmtKpi('ต้นทุนเฉลี่ยต่อกิโลเมตร', rate?`฿ ${fmt(rate.km,2)}`:'N/A', 'จาก Cost Prediction Model', 'purple','⌖')}
+    </div>
+    <div class="scenario2-grid">
+      <section class="mgmt-card scenario2-input-card">
+        <div class="mgmt-card-head"><div><h3>ข้อมูลการเดินรถ</h3><p>เลือกเส้นทาง รถ และกรอกสมมติฐานของงานที่ต้องการจำลอง</p></div></div>
+        <div class="scenario2-form">
+          <label class="span-2">เส้นทาง<select data-mgmt="scenarioRoute">${routeOptions || '<option>ยังไม่มีข้อมูลเส้นทาง</option>'}</select></label>
+          <label>ระยะทาง<div><input data-mgmt="scenarioDistance" type="number" min="0" step="1" value="${esc(m.scenarioDistance)}"><span>กม.</span></div></label>
+          <label>น้ำหนักบรรทุก/เที่ยว<div><input data-mgmt="scenarioPayload" type="number" min="0" step=".1" value="${esc(m.scenarioPayload)}"><span>ตัน</span></div></label>
+          <label>จำนวนเที่ยว<div><input data-mgmt="scenarioTrips" type="number" min="1" step="1" value="${esc(m.scenarioTrips)}"><span>เที่ยว</span></div></label>
+          <label>ชนิดรถ<select data-mgmt="vehicle">${vehicleOptions}</select></label>
+          <label>ปีต้นทุน<select data-mgmt="costYear">${yearOptions}</select></label>
+        </div>
+        <div class="scenario2-method-title">วิธีคิดต้นทุน</div>
+        <div class="scenario2-methods">
+          ${[['trip','ต้นทุนต่อเที่ยว','Cost / Trip'],['km','ต้นทุนต่อกิโลเมตร','Cost / KM'],['tonkm','ต้นทุนต่อตัน-กิโลเมตร','Cost / Ton-KM']].map(([k,l,s]) => `<button type="button" data-scenario-method="${k}" class="${m.scenarioMethod===k?'active':''}"><b>${l}</b><small>${s}</small></button>`).join('')}
+        </div>
+        <div class="scenario2-bottom-inputs">
+          <label class="scenario2-toggle"><input data-mgmt-check="scenarioLfEnabled" type="checkbox" ${m.scenarioLfEnabled?'checked':''}><span>ปรับด้วย Load Factor</span></label>
+          <label class="${m.scenarioLfEnabled?'':'disabled-field'}">Load Factor<div><input data-mgmt="scenarioLf" type="number" min="1" max="100" step="1" value="${esc(m.scenarioLf)}" ${m.scenarioLfEnabled?'':'disabled'}><span>%</span></div></label>
+          <label>Target Margin<div><input data-mgmt="scenarioTargetMargin" type="number" min="0" max="99" step="1" value="${esc(m.scenarioTargetMargin)}"><span>%</span></div></label>
+        </div>
+      </section>
+
+      <div class="scenario2-right">
+        <section class="mgmt-card scenario2-rate-card">
+          <div class="mgmt-card-head"><div><h3>อัตราต้นทุนจาก Cost Prediction Model</h3><p>ดึงตามชนิดรถและปีที่เลือกโดยอัตโนมัติ</p></div></div>
+          <div class="scenario2-rate-grid">
+            <div><span>Cost / Trip</span><b>${rate?bahtExact(rate.trip):'N/A'}</b></div>
+            <div><span>Cost / KM</span><b>${rate?`฿ ${fmt(rate.km,2)}`:'N/A'}</b></div>
+            <div><span>Cost / Ton-KM</span><b>${rate?`฿ ${fmt(rate.tonkm,2)}`:'N/A'}</b></div>
+            <div><span>LF เฉลี่ยในตารางต้นทุน</span><b>${rate?fmt(rate.lf*100,1)+'%':'N/A'}</b></div>
+          </div>
+        </section>
+        <section class="mgmt-card scenario2-result-card">
+          <div class="mgmt-card-head"><div><h3>ผลการจำลอง</h3><p>คำนวณตามวิธีต้นทุนและสมมติฐานที่เลือก</p></div></div>
+          <table class="scenario2-result-table"><tbody>
+            <tr><td>ระยะทางรวม</td><td>${r.ok?fmt(r.totalDistance,0)+' กม.':'N/A'}</td></tr>
+            <tr><td>น้ำหนักรวม</td><td>${r.ok?fmt(r.totalTons,1)+' ตัน':'N/A'}</td></tr>
+            <tr><td>ต้นทุนรวม (Variable Cost)</td><td>${r.ok?bahtExact(r.cost):'N/A'}</td></tr>
+            <tr><td>ต้นทุนเฉลี่ยต่อเที่ยว</td><td>${r.ok?bahtExact(r.costPerTrip):'N/A'}</td></tr>
+          </tbody></table>
+          <div class="scenario2-finance">
+            <div class="blue"><span>ต้นทุนรวม</span><b>${r.ok?bahtExact(r.cost):'N/A'}</b></div>
+            <div class="green"><span>รายได้ที่ควรได้</span><b>${r.ok?bahtExact(r.revenue):'N/A'}</b></div>
+            <div class="purple"><span>Contribution</span><b>${r.ok?bahtExact(r.contribution):'N/A'}</b><small>CM Ratio = ${fmt(m.scenarioTargetMargin,1)}%</small></div>
+          </div>
+          <div class="scenario2-note">ผลลัพธ์เป็นการจำลองจากอัตราต้นทุนใน Cost Prediction Model และสมมติฐานที่เลือก ไม่ใช่การพยากรณ์หรือผลลัพธ์ที่รับประกัน</div>
+        </section>
+      </div>
+    </div>
+  </div>`;
+}
+
 function managementActionPage() {
-  return `<div class="scenario-executive rp-dashboard"><div class="merged-page-intro"><div><div class="eyebrow">DECISION CENTER</div><h2>Management Action &amp; Scenario</h2><p>เครื่องมือจำลองสถานการณ์ที่ผู้บริหารกำหนดสมมติฐานเอง</p></div></div>${scenarioSimulatorSection()}</div>`;
+  const m = managementState();
+  return `<div class="scenario-executive rp-dashboard management-v2">
+    <div class="merged-page-intro management-v2-intro"><div><div class="eyebrow">DECISION CENTER</div><h2>Management Action &amp; Scenario</h2><p>ค้นหาโอกาสลดต้นทุนจากการรวมเที่ยว และจำลองต้นทุนสำหรับงานใหม่</p></div></div>
+    ${managementTabs()}
+    ${m.tab === 'scenario' ? scenario2Page() : advisorPage()}
+  </div>`;
 }
 
 const categoryLabel = {
@@ -1854,6 +2202,61 @@ $('content').addEventListener('click', e => {
   render();
 });
 $('content').addEventListener('keydown', e => { if(e.target.matches('[data-rp-route]') && (e.key==='Enter'||e.key===' ')){e.preventDefault();rpClick(e);} });
+
+// Management V2: two compact executive tools (Route Advisor + Cost Scenario)
+$('content').addEventListener('click', e => {
+  const tab = e.target.closest('[data-mgmt-tab]');
+  if (tab) {
+    const m = managementState();
+    m.tab = tab.dataset.mgmtTab;
+    try { localStorage.setItem('nimManagementV2', JSON.stringify(m)); } catch {}
+    render();
+    return;
+  }
+  const route = e.target.closest('[data-advisor-route]');
+  if (route) {
+    const m = managementState();
+    m.candidateRoute = route.dataset.advisorRoute;
+    m.mainRoute = '';
+    try { localStorage.setItem('nimManagementV2', JSON.stringify(m)); } catch {}
+    render();
+    return;
+  }
+  const method = e.target.closest('[data-scenario-method]');
+  if (method) {
+    const m = managementState();
+    m.scenarioMethod = method.dataset.scenarioMethod;
+    try { localStorage.setItem('nimManagementV2', JSON.stringify(m)); } catch {}
+    render();
+  }
+});
+$('content').addEventListener('change', e => {
+  const m = managementState();
+  const check = e.target.closest('[data-mgmt-check]');
+  if (check) {
+    m[check.dataset.mgmtCheck] = !!check.checked;
+    try { localStorage.setItem('nimManagementV2', JSON.stringify(m)); } catch {}
+    render();
+    return;
+  }
+  const el = e.target.closest('[data-mgmt]');
+  if (!el) return;
+  const key = el.dataset.mgmt;
+  const numericKeys = new Set(['cmThreshold','lfThreshold','costYear','detourKm','transferPct','scenarioDistance','scenarioPayload','scenarioTrips','scenarioLf','scenarioTargetMargin']);
+  m[key] = numericKeys.has(key) ? Number(el.value) : el.value;
+  if (key === 'costYear') {
+    const valid = costVehicles(m.costYear);
+    if (!valid.includes(m.vehicle)) m.vehicle = valid[0] || '';
+  }
+  if (key === 'cmThreshold' || key === 'lfThreshold') {
+    m.candidateRoute = '';
+    m.mainRoute = '';
+  }
+  if (key === 'candidateRoute') m.mainRoute = '';
+  try { localStorage.setItem('nimManagementV2', JSON.stringify(m)); } catch {}
+  render();
+});
+
 $('nav').addEventListener('click', e => {
   const b = e.target.closest('[data-page]');
   if (!b) return;

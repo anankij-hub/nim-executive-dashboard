@@ -548,78 +548,595 @@ body .main .topbar h1{max-width:100%;white-space:nowrap;overflow:hidden;text-ove
 @media(max-width:650px){.credit-risk-kpis{grid-template-columns:1fr}.customer-tabs{display:grid;grid-template-columns:1fr 1fr}.customer-tab-btn{min-width:0}.credit-risk-bar-row{grid-template-columns:110px 1fr 70px}.credit-age-chart{gap:8px;padding-left:4px;padding-right:4px}.credit-age-track{width:52px}.credit-age-track i{width:40px}.customer-page-intro-credit h2{font-size:20px}}
 
 
-/* === PASTEL KPI CARD OVERRIDE START === */
+/* === Management V2: Route Advisor + Cost Scenario, one-screen executive layout === */
+.management-v2{font-size:11px}
+.management-v2-intro{margin-bottom:7px!important}
+.management-v2-intro h2{font-size:21px!important;margin:2px 0 2px!important}
+.management-v2-intro p{font-size:10px!important;margin:0!important}
+.mgmt-tabs{display:flex;gap:8px;margin:0 0 8px}
+.mgmt-tabs button{height:34px;padding:0 24px;border:1px solid #cddcf0;border-radius:8px;background:#fff;color:#294d76;font-weight:800;font-size:11px;cursor:pointer}
+.mgmt-tabs button.active{background:linear-gradient(180deg,#2f83ea,#1769d5);border-color:#1769d5;color:#fff;box-shadow:0 4px 10px #1769d522}
+.mgmt-one-screen{height:calc(100vh - 174px);min-height:610px;display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:8px;overflow:hidden}
+.mgmt-kpi-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.mgmt-kpi{min-height:70px;border:1px solid #d8e5f5;border-radius:11px;background:#fff;display:flex;align-items:center;gap:9px;padding:9px 12px;box-shadow:0 2px 7px #163d6910}
+.mgmt-kpi.blue{background:linear-gradient(180deg,#f4f9ff,#fff);border-color:#cfe2fb}.mgmt-kpi.coral{background:linear-gradient(180deg,#fff3f2,#fff);border-color:#ffd1cc}.mgmt-kpi.amber{background:linear-gradient(180deg,#fff8e9,#fff);border-color:#f3dda9}.mgmt-kpi.green{background:linear-gradient(180deg,#eefaf5,#fff);border-color:#c0e8d6}.mgmt-kpi.purple{background:linear-gradient(180deg,#f5f2ff,#fff);border-color:#d8cff7}
+.mgmt-kpi-icon{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:#e8f2ff;color:#1768d4;font-weight:900;font-size:13px;flex:0 0 auto}
+.mgmt-kpi.coral .mgmt-kpi-icon{background:#ffe6e3;color:#dc5355}.mgmt-kpi.amber .mgmt-kpi-icon{background:#fff0c8;color:#b67e13}.mgmt-kpi.green .mgmt-kpi-icon{background:#dff5ea;color:#0b9d6d}.mgmt-kpi.purple .mgmt-kpi-icon{background:#ebe5ff;color:#7357d7}
+.mgmt-kpi small,.mgmt-kpi strong,.mgmt-kpi em{display:block}.mgmt-kpi small{font-size:9px;color:#5d7390;font-weight:800}.mgmt-kpi strong{font-size:21px;color:#13365f;line-height:1.15;margin:2px 0}.mgmt-kpi em{font-size:8px;color:#8495aa;font-style:normal;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.advisor-main-grid{display:grid;grid-template-columns:1.03fr 1fr;gap:8px;min-height:0}
+.mgmt-card{background:#fff;border:1px solid #dce8f6;border-radius:11px;padding:10px 12px;box-shadow:0 2px 7px #163d6910;min-width:0}
+.mgmt-card-head{display:flex;justify-content:space-between;gap:8px;align-items:flex-start;margin-bottom:7px}.mgmt-card-head h3{font-size:12px;color:#163a64;margin:0}.mgmt-card-head p{font-size:8.5px;color:#8192a7;margin:2px 0 0}
+.advisor-list-card,.advisor-sim-card{min-height:0;overflow:hidden}
+.advisor-filter-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px}.advisor-filter-row label,.advisor-assumption-row label,.scenario2-form label,.scenario2-bottom-inputs label{font-size:9px;color:#445f7f;font-weight:700}.advisor-filter-row label>div,.advisor-assumption-row label>div,.scenario2-form label>div,.scenario2-bottom-inputs label>div{height:29px;border:1px solid #d3e0ef;border-radius:7px;background:#fff;display:flex;align-items:center;overflow:hidden;margin-top:3px}.advisor-filter-row input,.advisor-assumption-row input,.scenario2-form input,.scenario2-bottom-inputs input{width:100%;height:100%;border:0;outline:0;padding:0 8px;font:inherit;color:#123e72;background:transparent;font-weight:800}.advisor-filter-row span,.advisor-assumption-row span,.scenario2-form label>div span,.scenario2-bottom-inputs label>div span{padding-right:8px;color:#8191a5;font-weight:600}
+.advisor-route-table{height:calc(100% - 64px);min-height:220px;overflow:hidden}.advisor-route-head,.advisor-route-row{display:grid;grid-template-columns:minmax(0,1.8fr) .5fr .55fr .55fr .65fr;align-items:center;gap:4px}.advisor-route-head{height:27px;padding:0 7px;background:#f5f8fc;border-radius:6px;color:#71839a;font-size:8px;font-weight:800}.advisor-route-row{width:100%;min-height:38px;border:0;border-bottom:1px solid #edf2f7;background:#fff;padding:4px 7px;text-align:left;cursor:pointer;color:#254869;font-size:8.7px}.advisor-route-row:hover{background:#f7fbff}.advisor-route-row.selected{background:#eef6ff;box-shadow:inset 3px 0 #2578de}.advisor-route-row span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:700}.advisor-route-row b{font-size:8.7px;text-align:center}.advisor-route-row b.bad{color:#d85459;background:#fff0ef;border-radius:4px;padding:4px}.advisor-route-row em{font-style:normal;font-size:8px;color:#cc5759;background:#fff0ef;border-radius:5px;padding:4px;text-align:center}
+.advisor-selected-route{padding:7px 9px;border-radius:8px;background:#f5f9ff;border:1px solid #d8e7fa;margin-bottom:6px}.advisor-selected-route span,.advisor-selected-route strong,.advisor-selected-route small{display:block}.advisor-selected-route span{font-size:8px;color:#7b8da4}.advisor-selected-route strong{font-size:11px;color:#164477;margin:1px 0}.advisor-selected-route small{font-size:8px;color:#6d82a0}
+.advisor-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}.advisor-form-grid label{font-size:8px;color:#5c728d;font-weight:700}.advisor-form-grid .span-2{grid-column:1/-1}.advisor-form-grid select{width:100%;height:29px;border:1px solid #d2dfef;border-radius:7px;background:#fff;padding:0 7px;color:#244f7d;font:inherit;font-weight:700;margin-top:3px}
+.advisor-rate-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin:7px 0}.advisor-rate-strip div{background:#f6f9fd;border:1px solid #e0e8f3;border-radius:7px;padding:6px 7px}.advisor-rate-strip span,.advisor-rate-strip b{display:block}.advisor-rate-strip span{font-size:7.5px;color:#7f91a7}.advisor-rate-strip b{font-size:10px;color:#173e6b;margin-top:2px}
+.advisor-assumption-row{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.advisor-result-card{padding:8px 10px}.advisor-result-grid{display:grid;grid-template-columns:1.05fr 1fr .85fr;gap:8px;align-items:stretch}.mini-title{font-size:9px;font-weight:800;color:#244d75;margin-bottom:4px}.before-after table{width:100%;border-collapse:collapse;font-size:8px}.before-after th,.before-after td{padding:4px 6px;border:1px solid #e2e9f2;text-align:center}.before-after th:first-child,.before-after td:first-child{text-align:left}.before-after th{background:#f5f8fc;color:#58708c}.before-after td.good{color:#079568;font-weight:800;background:#edf9f4}
+.advisor-result-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}.advisor-result-metrics div{border:1px solid #dfe8f3;border-radius:8px;background:#f9fbfe;padding:7px;display:flex;flex-direction:column;justify-content:center}.advisor-result-metrics span{font-size:7.5px;color:#7187a2}.advisor-result-metrics b{font-size:14px;color:#214c78;margin:2px 0}.advisor-result-metrics b.green{color:#09986b}.advisor-result-metrics small{font-size:7px;color:#8a9aab}
+.advisor-verdict{border-radius:8px;padding:8px 10px;border:1px solid #e7d7ad;background:#fff9ea;display:flex;flex-direction:column;justify-content:center}.advisor-verdict.good{border-color:#c6ead9;background:#f0fbf6}.advisor-verdict strong{font-size:10px;color:#a27417}.advisor-verdict.good strong{color:#078a60}.advisor-verdict p{font-size:8px;color:#536e8d;margin:4px 0}.advisor-verdict small{font-size:7px;line-height:1.35;color:#8796a7}
+.scenario2-screen{grid-template-rows:auto minmax(0,1fr)}
+.scenario2-grid{display:grid;grid-template-columns:.95fr 1.05fr;gap:8px;min-height:0}
+.scenario2-input-card,.scenario2-right{min-height:0}.scenario2-right{display:grid;grid-template-rows:auto minmax(0,1fr);gap:8px}
+.scenario2-form{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.scenario2-form .span-2{grid-column:1/-1}.scenario2-form select{width:100%;height:29px;border:1px solid #d2dfef;border-radius:7px;background:#fff;padding:0 7px;color:#244f7d;font:inherit;font-weight:700;margin-top:3px}
+.scenario2-method-title{font-size:9px;font-weight:800;color:#294d75;margin:9px 0 5px}.scenario2-methods{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}.scenario2-methods button{min-height:52px;border:1px solid #d8e3ef;border-radius:8px;background:#fff;color:#294d72;text-align:left;padding:7px 9px;cursor:pointer}.scenario2-methods button.active{border-color:#2680e7;background:#edf6ff;box-shadow:inset 0 0 0 1px #2680e7}.scenario2-methods b,.scenario2-methods small{display:block}.scenario2-methods b{font-size:9px}.scenario2-methods small{font-size:7.5px;color:#8494a7;margin-top:2px}.scenario2-bottom-inputs{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:8px}.scenario2-toggle{display:flex;align-items:center;gap:6px;background:#f7faff;border:1px solid #e0e8f3;border-radius:8px;padding:0 9px}.scenario2-toggle span{padding:0!important;color:#385a7f!important}.disabled-field{opacity:.48}
+.scenario2-rate-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}.scenario2-rate-grid div{background:#f6f9fd;border:1px solid #e0e8f3;border-radius:7px;padding:7px}.scenario2-rate-grid span,.scenario2-rate-grid b{display:block}.scenario2-rate-grid span{font-size:7.5px;color:#7d90a7}.scenario2-rate-grid b{font-size:11px;color:#173f6c;margin-top:2px}
+.scenario2-result-card{display:flex;flex-direction:column;min-height:0}.scenario2-result-table{width:100%;border-collapse:collapse;font-size:8.5px}.scenario2-result-table td{padding:5px 7px;border-bottom:1px solid #edf1f6}.scenario2-result-table td:last-child{text-align:right;font-weight:800;color:#214c78}
+.scenario2-finance{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}.scenario2-finance div{border:1px solid #dbe6f3;border-radius:8px;padding:8px}.scenario2-finance .blue{background:#f2f7ff}.scenario2-finance .green{background:#eefaf5}.scenario2-finance .purple{background:#f5f2ff}.scenario2-finance span,.scenario2-finance b,.scenario2-finance small{display:block}.scenario2-finance span{font-size:8px;color:#5f7897}.scenario2-finance b{font-size:16px;color:#17487f;margin:3px 0}.scenario2-finance .green b{color:#079568}.scenario2-finance .purple b{color:#704fd1}.scenario2-finance small{font-size:7.5px;color:#8477b5}
+.scenario2-note{margin-top:auto;padding:7px 9px;background:#f3f8ff;border:1px solid #dce9f8;border-radius:8px;font-size:7.5px;color:#687f9b;line-height:1.35}
+@media(max-width:1180px){.mgmt-one-screen{height:auto;min-height:0;overflow:visible}.advisor-main-grid,.scenario2-grid{grid-template-columns:1fr}.advisor-result-grid{grid-template-columns:1fr}.mgmt-kpi-row{grid-template-columns:repeat(2,1fr)}.scenario2-right{grid-template-rows:auto auto}.advisor-route-table{height:auto}.scenario2-screen{display:block}}
+@media(max-height:760px) and (min-width:1181px){.mgmt-one-screen{height:calc(100vh - 160px);min-height:560px}.mgmt-kpi{min-height:61px;padding:7px 10px}.mgmt-kpi strong{font-size:18px}.advisor-route-row{min-height:33px}.scenario2-methods button{min-height:46px}.scenario2-finance b{font-size:14px}}
+/* === End Management V2 === */
 
-/* Executive Overview KPI */
-.overview-kpi{
-  border:1px solid #cfe2fb;
-  background:linear-gradient(180deg,#f4f9ff 0%,#ffffff 100%);
-  box-shadow:0 7px 20px rgba(44,79,120,.06);
+
+
+/* === ROUTE ADVISOR LF VALIDATION FIX === */
+.advisor-auto-value{
+  min-height:36px;display:flex;align-items:center;justify-content:space-between;gap:8px;
+  padding:0 10px;border:1px solid #cfe0f4;border-radius:8px;background:#f5f9ff;
+}
+.advisor-auto-value b{font-size:14px;color:#0f4f91;}
+.advisor-auto-value span{font-size:10px;color:#7890aa;white-space:nowrap;}
+.advisor-route-row .na{color:#8aa0b8;background:#f3f6f9;}
+
+/* =====================================================
+   FINAL LOAD FACTOR TOGGLE FIX
+   ===================================================== */
+
+/* บังคับ checkbox ของ scenario ไม่ให้เป็นกล่องใหญ่ */
+.scenario2-bottom-inputs input[type="checkbox"],
+.scenario2-form input[type="checkbox"],
+.scenario2-toggle input[type="checkbox"] {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+
+  width: 38px !important;
+  height: 22px !important;
+  min-width: 38px !important;
+  max-width: 38px !important;
+  min-height: 22px !important;
+  max-height: 22px !important;
+
+  border-radius: 999px !important;
+  border: 1px solid #c7d4e6 !important;
+  background: #dfe7f2 !important;
+
+  padding: 0 !important;
+  margin: 0 !important;
+
+  position: relative !important;
+  display: inline-block !important;
+  flex: 0 0 38px !important;
+
+  box-shadow: none !important;
+  transform: none !important;
+  vertical-align: middle !important;
+  cursor: pointer !important;
 }
 
-.overview-kpi.coral{
-  border-color:#ffc9c4;
-  background:linear-gradient(180deg,#fff2f0 0%,#fffafa 100%);
+/* knob */
+.scenario2-bottom-inputs input[type="checkbox"]::before,
+.scenario2-form input[type="checkbox"]::before,
+.scenario2-toggle input[type="checkbox"]::before {
+  content: "" !important;
+  position: absolute !important;
+
+  width: 16px !important;
+  height: 16px !important;
+
+  left: 2px !important;
+  top: 2px !important;
+
+  border-radius: 50% !important;
+  background: #ffffff !important;
+
+  box-shadow: 0 1px 3px rgba(0,0,0,.18) !important;
+  transform: translateX(0) !important;
+  transition: .18s ease !important;
 }
 
-.overview-kpi.green{
-  border-color:#b9e7d3;
-  background:linear-gradient(180deg,#eefaf5 0%,#fafffc 100%);
+/* ON */
+.scenario2-bottom-inputs input[type="checkbox"]:checked,
+.scenario2-form input[type="checkbox"]:checked,
+.scenario2-toggle input[type="checkbox"]:checked {
+  background: #2482f0 !important;
+  border-color: #2482f0 !important;
 }
 
-.overview-kpi.purple{
-  border-color:#d9cdfb;
-  background:linear-gradient(180deg,#f6f2ff 0%,#fcfaff 100%);
+.scenario2-bottom-inputs input[type="checkbox"]:checked::before,
+.scenario2-form input[type="checkbox"]:checked::before,
+.scenario2-toggle input[type="checkbox"]:checked::before {
+  transform: translateX(16px) !important;
 }
 
-.overview-kpi.indigo{
-  border-color:#cbd6fa;
-  background:linear-gradient(180deg,#f2f5ff 0%,#fbfcff 100%);
+/* row */
+.scenario2-toggle,
+.scenario2-bottom-inputs .scenario2-toggle {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+
+  width: auto !important;
+  min-width: 0 !important;
+  height: 32px !important;
+  min-height: 32px !important;
+
+  padding: 0 !important;
+  margin: 0 !important;
+
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
 }
 
-.overview-kpi.amber{
-  border-color:#f4d99d;
-  background:linear-gradient(180deg,#fff8e8 0%,#fffdf8 100%);
+/* กัน pseudo checkbox เดิม */
+.scenario2-toggle::before,
+.scenario2-toggle::after {
+  display: none !important;
+  content: none !important;
 }
 
-/* Customer Profitability KPI */
+/* label */
+.scenario2-toggle span,
+.scenario2-toggle label {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  line-height: 1.2 !important;
+  margin: 0 !important;
+}
+
+/* ===================================================== */
+
+/* =====================================================
+   COST SCENARIO SIMULATOR - FONT SCALE UP
+   ===================================================== */
+
+/* หัวข้อหน้า */
+.scenario2-page h2,
+.scenario2-page .page-title,
+.scenario2-card h2 {
+  font-size: 28px !important;
+  line-height: 1.15 !important;
+}
+
+/* หัวข้อ section */
+.scenario2-card h3,
+.scenario2-section-title,
+.scenario2-form-title {
+  font-size: 18px !important;
+  line-height: 1.2 !important;
+}
+
+/* ข้อความอธิบาย */
+.scenario2-card p,
+.scenario2-helper,
+.scenario2-note,
+.scenario2-muted {
+  font-size: 13px !important;
+  line-height: 1.35 !important;
+}
+
+/* label ช่องกรอก */
+.scenario2-form label,
+.scenario2-bottom-inputs label,
+.scenario2-field-label {
+  font-size: 14px !important;
+  font-weight: 600 !important;
+}
+
+/* input / select */
+.scenario2-form input,
+.scenario2-form select,
+.scenario2-bottom-inputs input,
+.scenario2-bottom-inputs select {
+  font-size: 14px !important;
+  min-height: 36px !important;
+}
+
+/* วิธีคิดต้นทุน */
+.scenario2-method-title {
+  font-size: 14px !important;
+}
+
+.scenario2-methods b {
+  font-size: 14px !important;
+}
+
+.scenario2-methods small {
+  font-size: 12px !important;
+}
+
+/* อัตราต้นทุน */
+.scenario2-rate-grid span {
+  font-size: 12px !important;
+}
+
+.scenario2-rate-grid b {
+  font-size: 16px !important;
+}
+
+/* KPI ด้านบน */
+.scenario2-kpi span,
+.scenario2-kpi small {
+  font-size: 12.5px !important;
+}
+
+.scenario2-kpi b,
+.scenario2-kpi strong {
+  font-size: 24px !important;
+  line-height: 1.1 !important;
+}
+
+/* ตารางผลการจำลอง */
+.scenario2-result-table {
+  font-size: 13px !important;
+}
+
+.scenario2-result-table th {
+  font-size: 12.5px !important;
+}
+
+.scenario2-result-table td {
+  font-size: 13px !important;
+  padding: 6px 8px !important;
+}
+
+/* การ์ดสรุปทางการเงิน */
+.scenario2-finance span {
+  font-size: 12px !important;
+}
+
+.scenario2-finance b {
+  font-size: 21px !important;
+}
+
+.scenario2-finance small {
+  font-size: 11px !important;
+}
+
+/* ปุ่มคำนวณ */
+.scenario2-page button,
+.scenario2-card button {
+  font-size: 14px !important;
+}
+
+/* tab ด้านบน */
+.mgmt-tabs button {
+  font-size: 14px !important;
+}
+
+/* ลดช่องว่างเล็กน้อยเพื่อยังให้อยู่ในจอเดียว */
+.scenario2-card,
+.scenario2-panel {
+  padding: 12px 14px !important;
+}
+
+.scenario2-grid {
+  gap: 8px !important;
+}
+
+/* ===================================================== */
+
+/* =====================================================
+   ROUTE CONSOLIDATION ADVISOR - FONT SCALE UP
+   ===================================================== */
+
+/* หัวข้อหลักของหน้า */
+.advisor-page h2,
+.advisor-page .page-title,
+.advisor-card h2 {
+  font-size: 28px !important;
+  line-height: 1.15 !important;
+}
+
+/* หัวข้อ section */
+.advisor-card h3,
+.advisor-section-title,
+.advisor-sim-panel .mgmt-card-head h3,
+.advisor-before-after h3,
+.before-after-card h3 {
+  font-size: 18px !important;
+  line-height: 1.2 !important;
+}
+
+/* ข้อความอธิบาย */
+.advisor-card p,
+.advisor-helper,
+.advisor-muted,
+.advisor-sim-panel .mgmt-card-head p {
+  font-size: 13px !important;
+  line-height: 1.35 !important;
+}
+
+/* Filter labels */
+.advisor-filter-row label,
+.advisor-assumption-row label,
+.advisor-field-label {
+  font-size: 14px !important;
+  font-weight: 600 !important;
+}
+
+/* inputs / select */
+.advisor-filter-row input,
+.advisor-filter-row select,
+.advisor-assumption-row input,
+.advisor-assumption-row select,
+.advisor-sim-panel input,
+.advisor-sim-panel select {
+  font-size: 14px !important;
+  min-height: 36px !important;
+}
+
+/* Route candidate table */
+.advisor-route-row,
+.advisor-route-row span,
+.advisor-route-row b,
+.advisor-route-row em {
+  font-size: 13px !important;
+}
+
+.advisor-route-row {
+  min-height: 40px !important;
+}
+
+/* Table headers */
+.advisor-route-list .table-head,
+.advisor-route-list th {
+  font-size: 12.5px !important;
+}
+
+/* Simulation side */
+.advisor-sim-panel label,
+.advisor-simulation label,
+.route-simulation label {
+  font-size: 13.5px !important;
+}
+
+.advisor-sim-panel input,
+.advisor-sim-panel select,
+.advisor-simulation input,
+.advisor-simulation select,
+.route-simulation input,
+.route-simulation select {
+  font-size: 14px !important;
+}
+
+/* Cost Prediction Model */
+.advisor-sim-panel .scenario2-rate-grid span,
+.advisor-simulation .scenario2-rate-grid span,
+.route-simulation .scenario2-rate-grid span {
+  font-size: 12px !important;
+}
+
+.advisor-sim-panel .scenario2-rate-grid b,
+.advisor-simulation .scenario2-rate-grid b,
+.route-simulation .scenario2-rate-grid b {
+  font-size: 16px !important;
+}
+
+/* Before vs After */
+.before-after-card table,
+.advisor-before-after table,
+.route-before-after table {
+  font-size: 13px !important;
+}
+
+.before-after-card th,
+.advisor-before-after th,
+.route-before-after th {
+  font-size: 12.5px !important;
+  padding: 7px 9px !important;
+}
+
+.before-after-card td,
+.advisor-before-after td,
+.route-before-after td {
+  font-size: 13px !important;
+  padding: 7px 9px !important;
+}
+
+/* Result cards */
+.advisor-result-metrics span,
+.before-after-metrics span {
+  font-size: 12px !important;
+}
+
+.advisor-result-metrics b,
+.before-after-metrics b {
+  font-size: 19px !important;
+}
+
+/* Status / recommendation */
+.advisor-result-status,
+.before-after-status {
+  font-size: 13px !important;
+}
+
+.advisor-result-status strong,
+.before-after-status strong {
+  font-size: 16px !important;
+}
+
+/* KPI cards ด้านบน */
+.advisor-kpi span,
+.advisor-kpi small {
+  font-size: 12.5px !important;
+}
+
+.advisor-kpi b,
+.advisor-kpi strong {
+  font-size: 23px !important;
+}
+
+/* ปุ่ม */
+.advisor-page button,
+.advisor-card button,
+.advisor-sim-panel button {
+  font-size: 14px !important;
+}
+
+/* รักษา one-screen layout */
+.advisor-card,
+.advisor-sim-panel,
+.before-after-card,
+.advisor-before-after {
+  padding: 12px 14px !important;
+}
+
+.advisor-grid {
+  gap: 8px !important;
+}
+
+/* ===================================================== */
+
+/* =====================================================
+   KPI COLOR UNIFY
+   Executive Overview + Customer
+   Make cards look like Trip & Route KPI cards
+   ===================================================== */
+
+/* ---------- Executive Overview ---------- */
+
+/* Revenue - Blue */
+.overview-kpi:nth-child(1){
+  background: linear-gradient(180deg,#eef7ff 0%,#f8fbff 100%) !important;
+  border:1px solid #b9dafe !important;
+  box-shadow:none !important;
+}
+
+/* Variable Cost - Coral */
+.overview-kpi:nth-child(2){
+  background: linear-gradient(180deg,#fff1ee 0%,#fff9f7 100%) !important;
+  border:1px solid #ffc8be !important;
+  box-shadow:none !important;
+}
+
+/* Contribution - Green */
+.overview-kpi:nth-child(3){
+  background: linear-gradient(180deg,#eafaf2 0%,#f7fdf9 100%) !important;
+  border:1px solid #afe3c8 !important;
+  box-shadow:none !important;
+}
+
+/* CM Ratio - Purple */
+.overview-kpi:nth-child(4){
+  background: linear-gradient(180deg,#f4efff 0%,#fbf9ff 100%) !important;
+  border:1px solid #d6c7ff !important;
+  box-shadow:none !important;
+}
+
+/* Load Factor - Indigo */
+.overview-kpi:nth-child(5){
+  background: linear-gradient(180deg,#f0f3ff 0%,#fafbff 100%) !important;
+  border:1px solid #c7d0fb !important;
+  box-shadow:none !important;
+}
+
+/* Wasted Cost - Amber */
+.overview-kpi:nth-child(6){
+  background: linear-gradient(180deg,#fff7df 0%,#fffdf6 100%) !important;
+  border:1px solid #f4d99a !important;
+  box-shadow:none !important;
+}
+
+
+/* ---------- Customer Profitability ---------- */
+
+/* Customer count - Blue */
+.customer-kpi:nth-child(1){
+  background: linear-gradient(180deg,#eef7ff 0%,#f8fbff 100%) !important;
+  border:1px solid #b9dafe !important;
+  box-shadow:none !important;
+}
+
+/* Revenue - Light Blue */
+.customer-kpi:nth-child(2){
+  background: linear-gradient(180deg,#eef7ff 0%,#f8fbff 100%) !important;
+  border:1px solid #b9dafe !important;
+  box-shadow:none !important;
+}
+
+/* Allocated Cost - Amber */
+.customer-kpi:nth-child(3){
+  background: linear-gradient(180deg,#fff7df 0%,#fffdf6 100%) !important;
+  border:1px solid #f4d99a !important;
+  box-shadow:none !important;
+}
+
+/* Contribution - Green */
+.customer-kpi:nth-child(4){
+  background: linear-gradient(180deg,#eafaf2 0%,#f7fdf9 100%) !important;
+  border:1px solid #afe3c8 !important;
+  box-shadow:none !important;
+}
+
+/* Margin - Purple */
+.customer-kpi:nth-child(5){
+  background: linear-gradient(180deg,#f4efff 0%,#fbf9ff 100%) !important;
+  border:1px solid #d6c7ff !important;
+  box-shadow:none !important;
+}
+
+/* Negative Contribution - Red */
+.customer-kpi:nth-child(6){
+  background: linear-gradient(180deg,#fff0ef 0%,#fff9f8 100%) !important;
+  border:1px solid #ffc4c0 !important;
+  box-shadow:none !important;
+}
+
+/* Profit Leakage - Red */
+.customer-kpi:nth-child(7){
+  background: linear-gradient(180deg,#fff0ef 0%,#fff9f8 100%) !important;
+  border:1px solid #ffc4c0 !important;
+  box-shadow:none !important;
+}
+
+/* Revenue at Risk - Amber */
+.customer-kpi:nth-child(8){
+  background: linear-gradient(180deg,#fff7df 0%,#fffdf6 100%) !important;
+  border:1px solid #f4d99a !important;
+  box-shadow:none !important;
+}
+
+
+/* ---------- Remove old left accent bar look ---------- */
+
+.overview-kpi::before,
+.customer-kpi::before{
+  display:none !important;
+}
+
+/* card radius ให้เหมือน Trip page */
+.overview-kpi,
 .customer-kpi{
-  border:1px solid #cfe2fb;
-  background:linear-gradient(180deg,#f4f9ff 0%,#ffffff 100%);
-  box-shadow:0 7px 20px rgba(44,79,120,.06);
+  border-radius:18px !important;
 }
 
-.customer-kpi.amber{
-  border-color:#f4d99d;
-  background:linear-gradient(180deg,#fff8e8 0%,#fffdf8 100%);
-}
-
-.customer-kpi.green{
-  border-color:#b9e7d3;
-  background:linear-gradient(180deg,#eefaf5 0%,#fafffc 100%);
-}
-
-.customer-kpi.purple{
-  border-color:#d9cdfb;
-  background:linear-gradient(180deg,#f6f2ff 0%,#fcfaff 100%);
-}
-
-.customer-kpi.coral{
-  border-color:#ffc9c4;
-  background:linear-gradient(180deg,#fff2f0 0%,#fffafa 100%);
-}
-
-/* เพิ่มความชัดของแถบสีด้านซ้าย */
-.overview-kpi:before,
-.customer-kpi:before{
-  width:4px;
-}
-
-/* ทำ icon ให้เด่นขึ้นเล็กน้อย */
+/* icon circles */
 .overview-kpi-icon,
 .customer-kpi-icon{
-  box-shadow:0 3px 10px rgba(36,76,120,.06);
+  box-shadow:none !important;
 }
 
-/* === PASTEL KPI CARD OVERRIDE END === */
-
+/* ===================================================== */
